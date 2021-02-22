@@ -1,0 +1,2476 @@
+"Blypyp": {
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "martian"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"hand",
+			"target_house":"mars",
+			"target_condition":"auto",
+			"effect":"gain_ability",
+			"effect_target":"target",
+			"effect_ability":"[
+				"name":"constant",
+				"constant_name":"straight-ready"
+			]"
+		]"
+	}
+}
+"Etaromme": {
+	"house":"dis",
+	"is_a": "creature",
+	{
+		"target": "attack", 
+		"value": "4"
+	},
+	{
+		"target": "reap",
+		"value": "TBD"
+	}
+}
+"Dexus": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "TBD",
+		"value": "TBD"
+	}
+}
+"Impspector": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "destroyed",
+		"value": "TBD"
+	}
+}
+"Soul Snatcher": {	
+	"house": "dis",
+	"is_a": "artifact",
+	{
+		"target": "const_ability",
+		"value": "5"
+	}
+}
+"Cannon": {	
+	"house": "brobnar",
+	"is_a": "artifact",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"action",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_target":"target",
+			"effect_value":"2"
+		]"
+	}
+}
+"Pile of Skulls": {	
+	"house": "brobnar",
+	"is_a": "artifact",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"action":"destroyed",
+			"action_target":"creature",
+			"action_target_condition":"friend",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_condition":"friend",
+			"effect":"capture",
+			"effect_target":"target",
+			"effect_value":"1"
+		]"
+	}
+}
+"Feeding Pit": {	
+	"house": "mars",
+	"is_a": "artifact",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"action",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"hand",
+			"action":"discard",
+			"action_target":"target",
+			"effect":"gain_amber",
+			"effect_value":"1"
+		]"
+	}
+}
+"Yxilx Dominator": {
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "robot"
+	},
+	{
+		"target": "attack",
+		"value": "9"
+	},
+	{
+		"target": "shield",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name": "constant",
+			"constant_name": "taunt"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name": "constant",
+			"constant_name": "stun"
+		]
+	}
+}
+"Grabber Jammer": {
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "robot"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "shield",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name": "constant",
+			"effect":"key_cost",
+			"effect_value":"1",
+			"effect_condition":"enemy"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"effect":"capture",
+			"effect_value":"1"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"effect":"capture",
+			"effect_value":"1"
+		]"
+	}
+}
+"Headhunter": {
+	"house": "brobnar",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "giant"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"effect":"gain_amber",
+			"effect_value":"1"
+		]"
+	}
+}
+"Firespitter": {
+	"house": "brobnar",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "giant"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "shield",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"before_fight",
+			"target":"creature",
+			"target_condition":"enemy",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_value":"1"
+		]"
+	}
+}
+"Ganger Chieftain": {
+	"house": "brobnar",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "giant"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_condition":"neighbor",
+			"target_position":"playarea",
+			"effect":"ready_fight",
+			"effect_target":"target"
+		]"
+	}
+}
+"Valdr": {
+	"house": "brobnar",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "giant"
+	},
+	{
+		"target": "attack",
+		"value": "6"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"target":"creature",
+			"target_condition":"flank;enemy",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"action_move":"fight",
+			"action_target":"this",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target"
+		]"
+	}
+}
+"Uxlyx the Zookeeper": {
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "martian"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"enemy",
+			"effect":"archive",
+			"effect_target":"target"
+		]"
+	},
+	{ 
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name":"elusive"
+		]
+	}
+}
+"Vezyma Thinkdrone": {
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "martian"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature;artifact",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend",
+			"effect":"archive",
+			"effect_target":"target"
+		]"
+	}
+}
+"Noname": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "attack",
+		"value": "1"
+	},
+	{
+		"target": "const_ability",
+		"value": "TBD"
+	},
+	{
+		"target": "play",
+		"value": "TBD"
+	},
+	{
+		"target": "fight",
+		"value": "TBD"
+	},
+	{
+		"target": "reap",
+		"value": "TBD"
+	}
+}
+"Infurnace": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "play",
+		"value": "TBD"
+	}
+}
+"Gleeful Mayhem": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "play",
+		"value": "TBD"
+	},
+	{
+		"target": "amber",
+		"value": "1"
+	}
+}
+"Burn the Stockpile": {	
+	"house": "brobnar",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"opponent_amber",
+			"target_condition":"opponent_amber>7",
+			"effect":"lose",
+			"effect_value":"4"
+		]"
+	}
+}
+"Coward's End": {	
+	"house": "brobnar",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"target_condition":"undamaged",
+			"effect":"destroy",
+			"effect_target":"target",
+			"action":"gain_chain",
+			"action_value":"3"
+		]"
+	}
+}
+"Grasping Vines": {	
+	"house": "brobnar",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"artifact",
+			"target_value":"3",
+			"target_position":"playarea",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"Save the Pack": {	
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"target_condition":"damaged",
+			"effect":"destroy",
+			"effect_target":"target",
+			"action":"gain_chain",
+			"action_value":"1"
+		]"
+	}
+}
+"Hunting Witch": {
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "witch"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_condition":"friend;is_new",
+			"effect":"gain_amber",
+			"effect_value":"1"
+		]"
+	}
+}
+"Shooler": {
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "demon"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"opponent_amber",
+			"target_condition":"amber>4",
+			"effect":"steal",
+			"effect_value":"1"
+		]"
+	}
+}
+"Regrowth": {	
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target":"amber",
+		"value":"1"
+	}
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"discard",
+			"target_condition":"friend",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"Soul Fiddle": {	
+	"house": "dis",
+	"is_a": "artifact",
+	{
+		"target": "action",
+		"value": "5"
+	}
+}
+"Exhume": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"discard",
+			"target_condition":"friend",
+			"effect":"play_now",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "amber",
+		"value": "1"
+	}
+}
+"Festering Touch": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"2",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_value":"1",
+			"effect_condition":"target_damage=0"
+			]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"2",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_value":"3",
+			"effect_condition":"target_damage>0"
+			]"
+	}
+	{
+		"target": "amber",
+		"value": "1"
+	}
+}
+"Buzzle": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"neighbor",
+			"action":"purge",
+			"effect":"ready",
+			"effect_target":"this"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"neighbor",
+			"action":"purge",
+			"effect":"ready",
+			"effect_target":"this"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "skirmish"
+		]
+	}
+}
+"“John Smyth”": {	
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "martian"
+	},
+	{
+		"target": "type",
+		"value": "agent"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_house":"mars",
+			"target_type":"not_agent",
+			"target_condition":"exhausted",
+			"effect":"ready",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_house":"mars",
+			"target_type":"not_agent",
+			"target_condition":"exhausted",
+			"effect":"ready",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "elusive"
+		]
+	}
+}
+"Yxilo Bolter": {	
+	"house": "mars",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "martian"
+	},
+	{
+		"target": "type",
+		"value": "soldier"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target",
+			"effect_triggers":"purge",
+			"effect_triggers_condition":"target_destroyed"
+		]"
+	},	
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target",
+			"effect_triggers":"purge",
+			"effect_triggers_condition":"target_destroyed"
+		]"
+	}
+}
+"Onyx Knight": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "demon"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"target_condition":"power=odd;auto",
+			"effect":"destroy",
+			"effect_target":"target"
+		]"
+	}
+}
+"Cooperative Hunting": {
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"effect":"damage",
+			"effect_target":"target",
+			"effect_value":"1",
+			"effect_condition":"each_friend"
+		]"
+	}
+}
+"Anger": {
+	"house": "brobnar",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend",
+			"effect":"ready_fight",
+			"effect_target":"target"
+		]"
+	}
+}
+"Hecatomb": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"target_house":"dis",
+			"action":"destroy",
+			"effect":"gain",
+			"effect_value":"1",
+			"effect_condition":"foreach_action"
+		]"
+	}
+}
+"Rotgrub": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"opponent_amber",
+			"effect":"lose",
+			"effect_value":"1"
+		]"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_name":"this",
+			"effect":"archive",
+			"effect_target":"target"
+		]"
+	}
+}
+"Three Fates": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_condition":"most_powerful",
+			"target_value":"3",
+			"effect":"destroy",
+			"effect_target":"target"
+		]"
+	}
+}
+"Ortannu's Binding": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target"
+		]"
+	}
+}
+"Ortannu the Chained": {	
+	"house": "dis",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "demon"
+	}, 
+	{
+		"target": "attack",
+		"value": "7"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"1",
+			"action":"return_hand",
+			"action_target":"target",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"creature"
+		]"
+	}
+}
+"Demons' Bane": {	
+	"house": "dis",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"1",
+			"target_type":"demon",
+			"effect":"destroy",
+			"effect_target":"target"
+		]"
+	}
+}
+"Dew Faerie": {
+	"house": "untamed",
+	"is_a":"creature",
+	{
+		"target": "type",
+		"value": "faerie"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "elusive"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"effect":"gain_amber",
+			"effect_value":"1"
+		]"
+	}
+}
+"Dust Pixie": {
+	"house": "untamed",
+	"is_a":"creature",
+	{
+		"target": "amber",
+		"value": "2"
+	}, 
+	{
+		"target": "type",
+		"value": "faerie"
+	},
+	{
+		"target": "attack",
+		"value": "1"
+	}
+}
+"Nurse Soto": {	
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "deploy"
+		]
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target_name":"this",
+			"target_value":"auto",
+			"target_condition":"auto",
+			"effect":"heal",
+			"effect_value":"3",
+			"effect_target":"target_left_neighbor;target_right_neighbor"
+		]"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target_name":"this",
+			"target_value":"auto",
+			"target_condition":"auto",
+			"effect":"heal",
+			"effect_value":"3",
+			"effect_target":"target_left_neighbor;target_right_neighbor"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target_name":"this",
+			"target_value":"auto",
+			"target_condition":"auto",
+			"effect":"heal",
+			"effect_value":"3",
+			"effect_target":"target_left_neighbor;target_right_neighbor"
+		]"
+	}
+}
+"Valoocanth": {	
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "aquan"
+	},
+	{
+		"target": "attack",
+		"value": "6"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"enemy",
+			"effect":"exhaust",
+			"effect_target":"target;target_left_neighbor;target_right_neighbor"
+		]"
+	}
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"enemy",
+			"effect":"exhaust",
+			"effect_target":"target;target_left_neighbor;target_right_neighbor"
+		]"
+	}
+}
+"Cloaking Dongle": {	
+	"house": "star alliance",
+	"is_a": "upgrade",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "elusive"
+		]
+	},
+	{
+		"target": "amber",
+		"value": "1"
+	}
+}
+"Brain Stem Antenna": {	
+	"house": "mars",
+	"is_a": "upgrade",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"target":"creature",
+			"target_house":"mars",
+			"target_condition":"is_new",
+			"effect":"playable",
+			"effect_target":"this"
+		]"
+	}
+}
+"First Officer Frane": {	
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	}, 
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend_all",
+			"effect":"capture",
+			"effect_target":"target",
+			"effect_value":"1"
+		]"
+	}, 
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend_all",
+			"effect":"capture",
+			"effect_target":"target",
+			"effect_value":"1"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"target_condition":"friend_all",
+			"effect":"capture",
+			"effect_target":"target",
+			"effect_value":"1"
+		]"
+	}
+}
+"Frane's Blaster": {
+	"house": "star alliance",
+	"is_a": "upgrade",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target" 
+			]"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",	
+			"target":"creature",
+			"target_name":"First Officer Frane",
+			"effect": "attach",
+			"effect_target":"target"
+		]"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"effect":"damage",
+			"effect_value":"2",
+			"effect_target":"target" 
+			]"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",	
+			"target":"creature",
+			"target_name":"First Officer Frane",
+			"effect": "attach",
+			"effect_target":"target"
+		]"
+	} 
+}
+"Zap": {
+	"house": "star alliance",
+	"is_a":"action",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"effect_condition":"each_house",
+			"effect":"damage",
+			"effect_value":"1",
+			"effect_target":"target"
+		]"
+	}
+}
+"Witch of the Eye": {
+	"house": "untamed",
+	"is_a":"creature",
+	{
+		"target": "attack",
+		"value": "3"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"CXO Taber": {
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "alien"
+	},
+		{
+		"target": "type",
+		"value": "krxix"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_value":"1",
+			"target_house":"not_staralliance",
+			"target_condition":"friend",
+			"effect":"playable",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_house":"not_staralliance",
+			"target_condition":"friend",
+			"effect":"playable",
+			"effect_target":"target"
+		]"
+	}
+}
+"Lieutenant Khrkhar": {
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "alien"
+	},
+	{
+		"target": "type",
+		"value": "handuhan"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name":"taunt"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name":"hazardous",
+			"value":"3"
+		]
+	}
+}
+"Chief Engineer Walls": {
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	}, 
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "elusive"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"upgrade",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"play",
+			"target":"creature",
+			"target_type":"robot",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"upgrade",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"reap",
+			"target":"creature",
+			"target_type":"robot",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	},{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"upgrade",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"fight",
+			"target":"creature",
+			"target_type":"robot",
+			"target_position":"discard",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"Armsmaster Molina": {
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "hazardous",
+			"value":"3",
+			"features":"spreadable"
+		]
+	}
+}
+"Crash Muldoon": {
+	"house": "star alliance",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "pilot"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "deploy"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "straight-ready"
+		]
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"action",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_house":"not_staralliance",
+			"target_condition":"neighbor",
+			"target_value":"1",
+			"effect":"play",
+			"effect_target":"target"
+		]"
+	}
+}
+"Low Dawn": {
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_position":"discard",
+			"target_house":"untamed",
+			"target_value":"auto",
+			"effect":"gain_amber",
+			"effect_target":"2",
+			"effect_condition":"targets>3"
+		]"
+	}
+}
+"Deepwood Druid": {
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "elf"
+	},
+	{
+		"target": "type",
+		"value": "witch"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "deploy"
+		]
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"1",
+			"target_condition":"neighbor",
+			"effect":"heal",
+			"effect_target":"target",
+			"effect_value":"full"
+		]"
+	}
+}
+"Cauldron Boil": {
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"target_position":"playarea",
+			"target_condition":"auto",
+			"effect":"damage",
+			"effect_target":"target",
+			"effect_value":"doubled"
+		]"
+	}
+}
+"Imprinted Murmook": {
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name": "elusive"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"effect":"key_cost",
+			"effect_value": "-1"
+		]
+	}
+}
+"Gebuk": {
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"destroyed",
+			"target":"card",
+			"target_value":"auto",
+			"target_position":"top_deck",
+			"target_triggers_condition":"creature",
+			"target_triggers":"effect",
+			"effect":"play",
+			"effect_target":"target"
+		]"
+	}
+}
+"Key Charge": {
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"action":"lose",
+			"action_value":"1",
+			"effect":"keyforge"
+		]"
+	}
+}
+"Nature's Call": {
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target":"ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"3",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"Song of the wild": 
+{
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target":"ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_condition":"friend",
+			"target_value":"auto",
+			"effect":"gain_amber",
+			"effect_value":"1"
+			"effect_condition":"reap"
+		]"
+	}
+}
+"Molephin": 
+{
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"constant_name":"hazardous",
+			"value":"3"
+		]
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"constant",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"auto",
+			"effect":"damage",
+			"effect_value": "1",
+			"effect_condition":"stolen"
+		]
+	}
+}
+"Nocturnal Maneuver": 
+{
+	"house": "untamed",
+	"is_a": "action",
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target":"ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"3",
+			"target_position":"playarea",
+			"effect":"exhaust",
+			"effect_target":"target"
+		]"
+	}
+}
+"Ghosthawk": 
+{
+	"house": "untamed",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "beast"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"constant_name":"deploy"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"2",
+			"target_position":"playarea",
+			"target_condition":"neighbor",
+			"effect":"reap",
+			"effect_value":"auto",
+			"effect_target":"target"
+		]"
+	}
+}
+
+
+
+
+
+"Bouncing Deathquark": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"2",
+			"target_position":"playarea",
+			"target_condition":"one_friend_one_enemy",
+			"effect":"destroy",
+			"effect_target":"target",
+			"effect_condition":"repeatable"
+		]"
+	}
+}
+"Help from Future Self": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_name":"Timetraveller",
+			"target_position":"deck",
+			"effect":"return_hand",
+			"effect_target":"target"
+		]"
+	}
+}
+"Interdimensional Graft": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"opponent",
+			"target_condition":"enemy_forge_key"
+		]"
+	}
+}
+"Labwork": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"card",
+			"target_value":"1",
+			"effect":"archive",
+			"effect_target":"target"
+		]"
+	}
+}
+"Phase Shift": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"card",
+			"target_value":"1",
+			"target_position":"hand",
+			"target_house":"not_logos",
+			"effect":"play",
+			"effect_target":"target"
+		]"
+	}
+}
+"Scrambler Storm": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"opponent",
+			"effect":"action_banned"
+		]"
+	}
+}
+"Sloppy Labwork": 
+{
+	"house": "logos",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"card",
+			"target_value":"2",
+			"effect":"archive_discard",
+			"effect_target":"target"
+		]"
+	}
+}
+"Library of Babble": {	
+	"house": "logos",
+	"is_a": "artifact",
+	{
+		"target": "ability",
+		"value": "[
+			"name":"action",
+			"target":"card",
+			"target_value":"1",
+			"target_position":"deck",
+			"effect":"draw",
+			"effect_target":"target"
+		]"
+	}
+}
+"Ganymede Archivist": 
+{
+	"house": "logos",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"reap",
+			"target":"card",
+			"target_value":"1",
+			"effect":"archive",
+			"effect_target":"target"
+		]"
+	}
+}
+"Timetraveller": 
+{
+	"house": "logos",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "amber",
+		"value": "1"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"card",
+			"target_value":"2",
+			"target_position":"deck",
+			"effect":"draw",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"action",
+			"target_name":"this",
+			"target_value":"1",
+			"effect":"shuffle",
+			"effect_target":"target"
+		]"
+	}
+}
+"Vespilon Theorist": 
+{
+	"house": "logos",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "cyborg"
+	},
+	{
+		"target": "type",
+		"value": "scientist"
+	},
+	{
+		"target": "attack",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"constant_name":"elusive"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"reap",
+			"target":"card",
+			"target_position":"top_deck",
+			"target_condition":"house_chosen",
+			"effect":"archive",
+			"effect_target":"target"			
+		]"
+	}
+}
+"Raiding Knight": 
+{
+	"house": "logos",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "shield",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"effect":"capture",
+			"effect_value":"1"			
+		]"
+	}
+}
+"Cleansing Wave": 
+{
+	"house": "sanctum",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"auto",
+			"action":"heal",
+			"action_value":"1",
+			"effect":"gain_amber",
+			"effect_value":"1",
+			"effect_condition":"foreach_action"
+		]"
+	}
+}
+"Doorstep to Heaven": 
+{
+	"house": "sanctum",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"each_player",
+			"target_condition":"amber>5",
+			"effect":"amber",
+			"effect_value":"5"
+		]"
+	}
+}
+"Virtuous Works": 
+{
+	"house": "sanctum",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"3"
+	}
+}
+"Potion of Invulnerability": {	
+	"house": "sanctum",
+	"is_a": "artifact",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"omni",
+			"target":"creature",
+			"target_condition":"friend",
+			"action":"sacrifice",
+			"action_target":"this",
+			"effect":"invulnerability",
+			"effect_target":"target"
+		]"
+	}
+}
+"Sigil of Brotherhood": {	
+	"house": "sanctum",
+	"is_a": "artifact",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value": "[
+			"name":"omni",
+			"target":"creature",
+			"target_condition":"friend",
+			"action":"sacrifice",
+			"action_target":"this",
+			"effect":"play",
+			"effect_target":"target"
+		]"
+	}
+}
+"Champion Anaphiel": 
+{
+	"house": "sanctum",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "spirit"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "6"
+	},
+	{
+		"target": "shield",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"constant_name":"taunt"	
+		]"
+	}
+}
+"Commander Remiel": 
+{
+	"house": "sanctum",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "3"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"reap",
+			"target":"creature",
+			"target_value":"1",
+			"target_condition":"friend",
+			"effect":"play",
+			"effect_target":"target"	
+		]"
+	}
+}
+"Lady Maxena": 
+{
+	"house": "sanctum",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "spirit"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "5"
+	},
+	{
+		"target": "shield",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"effect":"stun",
+			"effect_target":"target"	
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"action",
+			"target_name":"this",
+			"effect":"return_hand",
+			"effect_target":"target"	
+		]"
+	}
+}
+"Sergeant Zakiel": 
+{
+	"house": "sanctum",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "shield",
+		"value": "1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_condition":"neighbor",
+			"effect":"ready_fight",
+			"effect_target":"target"	
+		]"
+	}
+}
+"Staunch Knight": 
+{
+	"house": "sanctum",
+	"is_a": "creature",
+	{
+		"target": "type",
+		"value": "human"
+	},
+	{
+		"target": "type",
+		"value": "knight"
+	},
+	{
+		"target": "attack",
+		"value": "4"
+	},
+	{
+		"target": "shield",
+		"value": "2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"target_name":"this",
+			"target_condition":"flank",
+			"effect":"power",
+			"effect_value":"2",
+			"effect_target":"target"
+		]"
+	}
+}
+"Protect the Weak": 
+{
+	"house": "sanctum",
+	"is_a": "upgrade",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"target_name":"this",
+			"effect":"shield",
+			"effect_value":"1",
+			"effect_target":"target"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"constant_name":"taunt"
+		]"
+	}
+}
+"Bait and Switch": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"opponent",
+			"target_condition":"opponent_amber>amber",
+			"effect":"steal",
+			"effect_value":"1",
+			"effect_condition":"repeatable"
+		]"
+	}
+}
+"Ghostly Hand": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"2"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"opponent",
+			"target_condition":"amber=1",
+			"effect":"steal",
+			"effect_value":"1"
+		]"
+	}
+}
+"Miasma": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"opponent",
+			"effect":"skip_forgekey"
+		]"
+	}
+}
+"Nerve Blast": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_value":"1",
+			"target_position":"playarea",
+			"action":"steal",
+			"action_value":"1",
+			"effect":"damage",
+			"effect_value":"1"
+		]"
+	}
+}
+"Pawn Sacrifice": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"target":"creature",
+			"target_position":"playarea",
+			"target_value":"2",
+			"action":"sacrifice",
+			"action_target":"creature",
+			"action_target_condition":"friend",
+			"effect":"damage",
+			"effect_value":"3",
+			"effect_target":"target"
+		]"
+	}
+}
+"Poison Wave": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"effect":"gain_amber",
+			"effect_value":"3",
+			"effect_target":"target"
+		]"
+	}
+}
+"Treasure Map": 
+{
+	"house": "shadows",
+	"is_a": "action",
+	{ 
+		"target":"amber", 
+		"value":"1"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"play",
+			"effect":"gain_amber",
+			"effect_value":"3",
+			"effect_condition":"unique_move"
+		]"
+	}
+}
+"Subtle Maul": 
+{
+	"house": "shadows",
+	"is_a": "artifact",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"action",
+			"target":"opponent",
+			"effect":"discard",
+			"effect_value":"1"
+		]"
+	}
+}
+"Carlo Phantom": 
+{
+	"house": "shadows",
+	"is_a": "creature",
+	{ 
+		"target":"type", 
+		"value":"elf"
+	},
+	{ 
+		"target":"type", 
+		"value":"thief"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"constant_name":"skirmish"
+		]"
+	},
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"constant",
+			"target":"artifact",
+			"target_condition":"is_new;friend",
+			"effect":"steal",
+			"effect_value":"1"
+		]"
+	}
+}
+"Duskrunner": {	
+	"house": "shadows",
+	"is_a": "upgrade",
+	{
+		"target": "ability",
+		"value" :"[
+			"name":"reap",
+			"effect":"steal",
+			"effect_value":"1"
+		]"
+	}
+}
