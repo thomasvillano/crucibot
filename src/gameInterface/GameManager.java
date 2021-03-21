@@ -46,18 +46,48 @@ public class GameManager {
 	}
 	private void updateBotPlayer(JSONObject player) {
 
-		botPlayer.convertCards(player.getJSONObject("cardPiles"), false);
-		botPlayer.buttons = player.getJSONArray("buttons");
-		botPlayer.controls = player.getJSONArray("controls");
-		botPlayer.phase = player.getString("phase");
+		if(player.has("cardPiles")) {
+			botPlayer.convertCards(player.getJSONObject("cardPiles"), false);
+		}
+		
+		if(player.has("buttons")) {
+			var buttons = player.get("buttons");
+			if(buttons instanceof JSONArray) {
+				botPlayer.buttons = player.getJSONArray("buttons");
+			}
+			else {
+				System.out.println("buttons " + buttons + " are not an instance of JSONArray");
+			}
+		}
+		
+		if(player.has("controls")) {
+			var controls = player.get("controls");
+			if (controls instanceof JSONArray) {
+				botPlayer.controls = player.getJSONArray("controls");
+			} else {
+				System.out.println("controls " + controls + " are not an instance of JSONArray");
+			}
+		}
+		
+		if(player.has("phase")) {
+			botPlayer.phase = player.getString("phase");
+		}
 		try { botPlayer.promptTitle = player.has("promptTitle") ? player.getString("promptTitle") : null; } catch(Exception e) {}
-		botPlayer.menuTitle = JSONObject.class.isInstance(player.get("menuTitle")) ? 
-				composeMenuTitle(player.getJSONObject("menuTitle")) : player.getString("menuTitle");
-		botPlayer.activePlayer = player.getBoolean("activePlayer");
+		
+		if(player.has("menuTitle")) {
+			botPlayer.menuTitle = JSONObject.class.isInstance(player.get("menuTitle")) ? 
+					composeMenuTitle(player.getJSONObject("menuTitle")) : player.getString("menuTitle");
+		}
+		if(player.has("activePlayer")) {
+			botPlayer.activePlayer = player.getBoolean("activePlayer");	
+		}
 		this.checkStartGame(botPlayer.promptTitle);
 		this.checkMulligan(botPlayer.promptTitle);
-		botPlayer.activeHouse = (player.get("activeHouse") != JSONObject.NULL) ? 
-				Utils.resolveHouse(player.getString("activeHouse")) : null;
+		if(player.has("activeHouse")) {
+			botPlayer.activeHouse = (player.get("activeHouse") != JSONObject.NULL) ? 
+					Utils.resolveHouse(player.getString("activeHouse")) : null;
+		}
+		
 		
 	}
 	private String composeMenuTitle(JSONObject menuTitle) {
@@ -77,14 +107,21 @@ public class GameManager {
 	private void updateOpponent(JSONObject opponent) {
 		if(botPlayer.opponentDeck == null)
 		{
-			var deckName = opponent.getString("deckName");
+			var deckName = opponent.getJSONObject("deckData").getString("name");
 			botPlayer.opponentDeck = CruciferMain.dr.AssignDeckByDeckName(deckName);
 		}
-		botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
+		if(opponent.has("cardPiles")) {
+			botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
+		}
 	}
 	private JSONArray getStatus(JSONObject gameState)
 	{
-		var opponent = gameState.getJSONObject("players").getJSONObject(gameState.getString("owner"));
+		// Get username from owner and then get JSONObject of the opponent
+		if (this.opponentPlayer == null) {
+			var opponentName = gameState.getString("owner");
+			opponentPlayer = new Player(opponentName, "");
+		}
+		var opponent = gameState.getJSONObject("players").getJSONObject(opponentPlayer.name);
 		updateOpponent(opponent);
 		var player = gameState.getJSONObject("players").getJSONObject(botPlayer.name);
 		updateBotPlayer(player);

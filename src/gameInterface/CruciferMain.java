@@ -20,6 +20,9 @@ import keyforge.*;
 
 public class CruciferMain {
 	public static DeckReader dr;
+	public static String serverAddr = "192.168.1.119";
+	public static String serverLobbyPort = ":4000";
+	public static String serverGamePort = ":9500";
 	public static void main (String[] args) throws IOException, InterruptedException
 	{
 		System.out.println("****************** CRUCIFER ******************");
@@ -40,13 +43,13 @@ public class CruciferMain {
 				.build();
 		HttpRequest request = HttpRequest.newBuilder()
 				.GET()
-				.uri(URI.create("http://localhost:4000/socket.io/?version=2019-11-13&EIO=3&transport=polling"))
+				.uri(URI.create("http://" + serverAddr + serverLobbyPort + "/socket.io/?version=2019-11-13&EIO=3&transport=polling"))
 				.setHeader("User-Agent", "Java 11 HttpClient")
 				.build();
 		
 		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		String sid = new JSONObject(response.body().substring(4)).getString("sid");
-		String wsUri = "ws://localhost:4000/socket.io/?version=2019-11-13&EIO=3&transport=websocket&sid=" + sid;
+		String wsUri = "ws://" + serverAddr + serverLobbyPort +"/socket.io/?version=2019-11-13&EIO=3&transport=websocket&sid=" + sid;
 		WebSocket ws = HttpClient
 				.newHttpClient()
 				.newWebSocketBuilder()
@@ -67,7 +70,7 @@ public class CruciferMain {
 		}.start();
 		String json = "{\"username\":\""+ bot.name +"\",\"password\":\""+ bot.password+"\"}";
 		request = HttpRequest.newBuilder()
-				.uri(URI.create("http://localhost:4000/api/account/login"))
+				.uri(URI.create("http://" + serverAddr + serverLobbyPort + "/api/account/login"))
 				.header("Content-Type", "application/json")
 				.POST(BodyPublishers.ofString(json))
 				.build();
@@ -96,8 +99,8 @@ public class CruciferMain {
 			}
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			var cond = true;
-			int intChoice = 0;
-			if(true) return decks.get(intChoice);
+			int intChoice = 1;
+			//2if(true) return decks.get(intChoice);
 			do {
 				
 				var choice = keyboard.readLine();

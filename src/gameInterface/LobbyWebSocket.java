@@ -42,7 +42,7 @@ public class LobbyWebSocket implements Listener {
 		if(dataStr.equals("3probe"))
 			webSocket.sendText("5", true);
 		//rilevato un nuovo game creato chiamato esattamente <NOME UTENTE>'s game, cio� il nome predefinito
-		if(dataStr.contains("newgame") && dataStr.contains(username + "'s game")) {
+		if(dataStr.contains("newgame") && dataStr.contains("thom"/*username*/ + "'s game")) {
 			JSONArray gameInfo = new JSONArray(data.toString().substring(2));
 			String id = gameInfo.getJSONArray(1).getJSONObject(0).getString("id");
 			JSONArray response = new JSONArray()
@@ -77,11 +77,12 @@ public class LobbyWebSocket implements Listener {
 				String token = handOff.getJSONObject(1).getString("authToken");
 				
 				//NUOVO SESSION ID PER IL GAME
-				String uri = "http://localhost:9500/"+ node +"/socket.io/?token=" + token + "&EIO=3&transport=polling";
-				HttpRequest request = HttpRequest.newBuilder()
+				String uri = "http://" + CruciferMain.serverAddr + CruciferMain.serverGamePort + "/" +  node +"/socket.io/?token=" + token + "&EIO=3&transport=polling";
+				HttpRequest request = null;
+				request = HttpRequest.newBuilder()
 						.uri(URI.create(uri))
 						.setHeader("User-Agent", "Java 11 HttpClient")
-						.header("Origin", "http:/localhost:9500")
+						.header("Origin", "http:/" + CruciferMain.serverAddr + CruciferMain.serverGamePort )
 						.GET()
 						.build();
 				HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
@@ -93,7 +94,7 @@ public class LobbyWebSocket implements Listener {
 				String sid = new JSONObject(response.body().substring(4)).getString("sid");
 				//System.out.println(sid);
 				//COLLEGAMENTO WEB SOCKET PER IL GAME
-				uri = "ws://localhost:9500/"+ node +"/socket.io/?token=" + token + "&EIO=3&transport=websocket&sid=" + sid;
+				uri = "ws://" + CruciferMain.serverAddr + CruciferMain.serverGamePort + "/" + node +"/socket.io/?token=" + token + "&EIO=3&transport=websocket&sid=" + sid;
 				//System.out.println(uri);
 				WebSocket gameWS = HttpClient
 						.newHttpClient()

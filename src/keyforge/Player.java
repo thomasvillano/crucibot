@@ -416,6 +416,7 @@ public class Player {
 				.put("cardClicked")
 				.put(card.getUuid());
 	}
+
 	public JSONArray selectCard() throws Exception {
 		Map<KFCard, Double> playableCards = new HashMap<KFCard, Double>();
 		for (var card : deck) {
@@ -437,6 +438,11 @@ public class Player {
 		} catch (Exception e) {
 			card = getCardFromName(name, isOpponent, controlled);
 			card.setUuid(uuid);
+		} finally {
+			if( card == null) {
+				System.out.println("Err!\tError while adding card");
+				return null;
+			}
 		}
 		return card;	
 	}
@@ -493,6 +499,10 @@ public class Player {
 	public KFCard getCardFromName(String name, boolean isOpponent, boolean controlled) {
 		var myDeck = ((isOpponent && !controlled) || (!isOpponent && controlled)) ? opponentDeck : deck;
 		var card = this.getCardFromName(myDeck, name);
+		if(card == null) {
+			System.out.println("Card " + name + " not found");
+			return null;
+		}
 		card.setControlled(controlled);
 		return card;
 	}
