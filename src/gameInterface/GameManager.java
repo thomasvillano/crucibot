@@ -2,6 +2,7 @@ package gameInterface;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,8 +15,6 @@ import keyforge.Player;
 public class GameManager {
 
 	public PrintWriter out;
-	private boolean start = false;
-	private boolean mulligan = false;
 	public Player botPlayer, opponentPlayer;
 	public GameManager(String username, Player botPlayer) {
 		this.botPlayer = botPlayer;
@@ -26,7 +25,7 @@ public class GameManager {
 	}
 	
 	public JSONArray update(JSONObject gameState) {
-				return getStatus(gameState);
+				return getWSStatus(gameState);
 	}
 	public void botCleaner(JSONObject bot)
 	{
@@ -44,68 +43,27 @@ public class GameManager {
 		bot.remove("name");
 		bot.remove("cardback");
 	}
+	
+	/***
+	 * This is an entire mess....
+	 * @param player
+	 */
 	private void updateBotPlayer(JSONObject player) {
 
-		if(player.has("cardPiles")) {
-			botPlayer.convertCards(player.getJSONObject("cardPiles"), false);
-		}
-		
-		if(player.has("buttons")) {
-			var buttons = player.get("buttons");
-			if(buttons instanceof JSONArray) {
-				botPlayer.buttons = player.getJSONArray("buttons");
-			}
-			else {
-				System.out.println("buttons " + buttons + " are not an instance of JSONArray");
-			}
-		}
-		
-		if(player.has("controls")) {
-			var controls = player.get("controls");
-			if (controls instanceof JSONArray) {
-				botPlayer.controls = player.getJSONArray("controls");
-			} else {
-				System.out.println("controls " + controls + " are not an instance of JSONArray");
-			}
-		}
-		
-		if(player.has("phase")) {
-			botPlayer.phase = player.getString("phase");
-		}
-		try { botPlayer.promptTitle = player.has("promptTitle") ? player.getString("promptTitle") : null; } catch(Exception e) {}
-		
-		if(player.has("menuTitle")) {
-			botPlayer.menuTitle = JSONObject.class.isInstance(player.get("menuTitle")) ? 
-					composeMenuTitle(player.getJSONObject("menuTitle")) : player.getString("menuTitle");
-		}
-		if(player.has("activePlayer")) {
-			botPlayer.activePlayer = player.getBoolean("activePlayer");	
-		}
-		this.checkStartGame(botPlayer.promptTitle);
-		this.checkMulligan(botPlayer.promptTitle);
-		if(player.has("activeHouse")) {
-			botPlayer.activeHouse = (player.get("activeHouse") != JSONObject.NULL) ? 
-					Utils.resolveHouse(player.getString("activeHouse")) : null;
-		}
-		
-		
+		botPlayer.getCards(player);
+		botPlayer.getButtons(player);
+		botPlayer.getControls(player);
+		botPlayer.getPhase(player);
+		botPlayer.getPromptTitle(player);
+		botPlayer.getMenuTitle(player);
+		botPlayer.getIsActivePlayer(player);
+		botPlayer.getHouse(player);
+		botPlayer.checkStartGame();
+		botPlayer.checkMulligan();		
 	}
-	private String composeMenuTitle(JSONObject menuTitle) {
-		var toAssign = menuTitle.getString("text");
-		if(!menuTitle.has("values"))
-			return toAssign;
-		var values = menuTitle.get("values");
-		Pattern p = Pattern.compile("(?<=\\{\\{).*(?=\\}\\})");
-		Matcher m = p.matcher(toAssign);
-		while(m.find()) {
-			var value = ((JSONObject)values).get(m.group(0));
-			toAssign = toAssign.replaceAll("\\{\\{" + m.group(0) + "\\}\\}", value.toString());
-		}
-		
-		return toAssign;
-	}
+	
 	private void updateOpponent(JSONObject opponent) {
-		if(botPlayer.opponentDeck == null)
+		if(botPlayer.opponentDeck == null && opponent.has("deckData"))
 		{
 			var deckName = opponent.getJSONObject("deckData").getString("name");
 			botPlayer.opponentDeck = CruciferMain.dr.AssignDeckByDeckName(deckName);
@@ -114,8 +72,55 @@ public class GameManager {
 			botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
 		}
 	}
+	
+	/**
+	 * Unpack the results of the ws message and update the state of both players to evaluate moves
+	 * @param gameState
+	 * @return
+	 */
+	private JSONArray getWSStatus(JSONObject gameState) {
+		/**
+		 * Loop through all keys and use just the necessary ones
+		 * We need only players and owner maybe
+		 */
+		// maybe it makes more sense to log just the opponent name?
+		if((opponentPlayer == null || opponentPlayer.name != null) && gameState.has("owner")) 
+			opponentPlayer = new Player(gameState.getString("owner"),null);
+		
+		if(gameState.has("players")) {
+			var players = gameState.getJSONObject("players");
+			if(opponentPlayer != null && players.has(opponentPlayer.name))
+				updateOpponent(players.getJSONObject(opponentPlayer.name));
+			if(players.has(botPlayer.name))
+				updateBotPlayer(players.getJSONObject(botPlayer.name));
+		}
+		/***
+		 * 
+			
+			var status = checkStateON(opponent);
+			if(status != null) return status;
+			if(botPlayer.buttonEmpty() && botPlayer.controlsEmpty()) return null;		
+			updateGameState(gameState);
+			return botPlayer.planPhase();
+		 * 
+		 * 
+		 */
+		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) && 
+			(botPlayer.controls == null || botPlayer.controls.isEmpty()))
+			return null;
+		return botPlayer.planPhase();
+	}
+	/**
+	 * Change this and use getWSStatus instead
+	 * @param gameState
+	 * @return
+	 */
+	@Deprecated
 	private JSONArray getStatus(JSONObject gameState)
 	{
+		// in some cases we receive messages ... to understand the purpose we can simply skip it?
+		if(gameState.has("players") && !gameState.getJSONObject("players").has(botPlayer.name)) 
+			return null;
 		// Get username from owner and then get JSONObject of the opponent
 		if (this.opponentPlayer == null) {
 			var opponentName = gameState.getString("owner");
@@ -137,19 +142,11 @@ public class GameManager {
 	}
 	private void checkMulligan(String promptTitle)
 	{
-		if(promptTitle != null && "mulligan".equals(promptTitle.toLowerCase())) {
-			if(mulligan) return;
-			else
-				mulligan = true;
-		}
+		
 	}
 	private void checkStartGame(String promptTitle)
 	{
-		if(promptTitle != null && "start game".equals(promptTitle.toLowerCase())) {
-			if(start) return;
-			else
-				start = true;
-		}
+		
 	}
 	private JSONArray checkStateON(JSONObject opponent) 
 	{

@@ -2,6 +2,8 @@ package keyforge;
 
 import gameUtils.Utils;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
@@ -38,7 +40,8 @@ public class Player {
 	public int possessedAmber;
 	public int enemyAmber;
 	private boolean casualMove;
-	
+	private boolean start = false;
+	private boolean mulligan = false;
 	public JSONArray controls;
 	public JSONArray buttons;
 	public String promptTitle;
@@ -290,6 +293,12 @@ public class Player {
 	public void setDeck(String deckID) { this.dynamicDeckID = deckID; }
 
 	// if position.playarea then counter = 0; prevCard = card ecc
+	/**
+	 * BIG MESS
+	 * VERY BIG MESS
+	 * @param cardPiles
+	 * @param isOpponent
+	 */
 	public void convertCards(JSONObject cardPiles, boolean isOpponent) {
 		var positions = cardPiles.keys();
 
@@ -577,5 +586,114 @@ public class Player {
 			index++;
 		}
 		return null;
+	}
+	
+	public void getCards(JSONObject obj) {
+		if(obj.has("cardPiles"))
+			convertCards(obj.getJSONObject("cardPiles"), false);
+	}
+	
+	
+	/**
+	 * Check it
+	 * @param obj
+	 */
+	public void getControls(JSONObject obj) {
+		if(obj.has("controls")) {
+			var controls = obj.get("controls");
+			if (controls instanceof JSONArray) {
+				controls = obj.getJSONArray("controls");
+			} else {
+				System.out.println("controls " + controls + " are not an instance of JSONArray");
+			}
+		}
+	}
+	/**
+	 * Still a mess
+	 * @param obj
+	 */
+	public void getButtons(JSONObject obj) {
+		if(obj.has("buttons")) {
+			// make sure this is empty
+			buttons = null; 
+			var buttons = obj.get("buttons");
+			// changed, they are now JSON objects....
+			if(buttons instanceof JSONArray) {
+				buttons = obj.getJSONArray("buttons");
+			} else if (buttons instanceof JSONObject) {
+				var j_buttons = obj.getJSONObject("buttons");
+				Iterator<String> keys = j_buttons.keys();
+				while(keys.hasNext()) {
+					String key = keys.next();
+					if (j_buttons.get(key) instanceof JSONArray) {
+						buttons = j_buttons.getJSONArray(key);
+					}
+				}	
+			} else {
+				//buttons are JSONObject
+				System.out.println("buttons " + buttons + " are not an instance of JSONArray");
+			}
+		}
+	}
+	public void getPhase(JSONObject obj) {
+		if(obj.has("phase")) {
+			phase = (String)obj.get("phase");
+	}
+		
+	}
+	public void getMenuTitle(JSONObject player) {
+		if(player.has("menuTitle")) {
+			menuTitle = JSONObject.class.isInstance(player.get("menuTitle")) ? 
+					composeMenuTitle(player.getJSONObject("menuTitle")) : player.getString("menuTitle");
+		}
+		
+	}
+	public void getIsActivePlayer(JSONObject player) {
+		if(player.has("activePlayer")) {
+			activePlayer = player.getBoolean("activePlayer");	
+		}		
+	}
+	public void getPromptTitle(JSONObject player) {
+		try { 
+			promptTitle = player.has("promptTitle") 
+				? player.getString("promptTitle") 
+				: null; 
+		} catch(Exception e) {}	
+	}
+	
+	private static String composeMenuTitle(JSONObject menuTitle) {
+		var toAssign = menuTitle.getString("text");
+		if(!menuTitle.has("values"))
+			return toAssign;
+		var values = menuTitle.get("values");
+		Pattern p = Pattern.compile("(?<=\\{\\{).*(?=\\}\\})");
+		Matcher m = p.matcher(toAssign);
+		while(m.find()) {
+			var value = ((JSONObject)values).get(m.group(0));
+			toAssign = toAssign.replaceAll("\\{\\{" + m.group(0) + "\\}\\}", value.toString());
+		}
+		
+		return toAssign;
+	}
+	public void checkStartGame() {
+		if(promptTitle != null && "start game".equals(promptTitle.toLowerCase())) {
+			if(start) return;
+			else
+				start = true;
+		}
+		
+	}
+	public void checkMulligan() {
+		if(promptTitle != null && "mulligan".equals(promptTitle.toLowerCase())) {
+			if(mulligan) return;
+			else
+				mulligan = true;
+		}
+	}
+	public void getHouse(JSONObject obj) {
+		if(obj.has("activeHouse")) {
+			activeHouse = (obj.get("activeHouse") != JSONObject.NULL) ? 
+					Utils.resolveHouse(obj.getString("activeHouse")) : null;
+		}
 	}
 }
