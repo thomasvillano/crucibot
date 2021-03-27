@@ -45,19 +45,25 @@ public class GameState {
 		
 	}
 	
-	public void update(JSONObject gameState) {
-		enemyName = gameState.getString("owner");
+	public void update(JSONObject gameState, String enemyName) {
 		var players = gameState.getJSONObject("players");
-		enemyAmber = players.getJSONObject(enemyName).getJSONObject("stats").getInt("amber");
-		amber = players.getJSONObject(botPlayer.name).getJSONObject("stats").getInt("amber");
-		var botKeys = players.getJSONObject(botPlayer.name).getJSONObject("stats").getJSONObject("keys");
-		var enemyKeys = players.getJSONObject(enemyName).getJSONObject("stats").getJSONObject("keys");
-		chains = players.getJSONObject(botPlayer.name).getJSONObject("stats").getInt("chains");
-		enemyChains = players.getJSONObject(enemyName).getJSONObject("stats").getInt("chains");
-		keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
-		enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
+		var j_enemy = players.has(enemyName) ? players.getJSONObject(enemyName) : null;
+		var j_bot   = players.has(botPlayer.name) ? players.getJSONObject(botPlayer.name) : null;
+		if(j_enemy != null && j_enemy.has("stats")) 
+		{
+			enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
+			var enemyKeys = j_enemy.getJSONObject("stats").getJSONObject("keys");
+			enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
+			enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
+		}
+		if(j_bot != null && j_bot.has("stats")) {
+			amber = j_bot.getJSONObject("stats").getInt("amber");
+			var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
+			chains = j_bot.getJSONObject("stats").getInt("chains");
+			keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
+			houseChosen = j_bot.get("activeHouse") != JSONObject.NULL ? Utils.resolveHouse(j_bot.getString("activeHouse")) : null;
+		}
 		
-		houseChosen = players.getJSONObject(botPlayer.name).get("activeHouse") != JSONObject.NULL ? Utils.resolveHouse(players.getJSONObject(botPlayer.name).getString("activeHouse")) : null;
 		cardsInPlay = PlannedMove.cloneCards(botPlayer.deck);
 		cardsInPlay.addAll(botPlayer.opponentDeck);
 		cardsInPlay = cardsInPlay.parallelStream()

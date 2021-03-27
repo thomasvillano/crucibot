@@ -1,5 +1,5 @@
 Name;DeckID
-Dafne, la Mite della Corda Brillante;1
-X. Q. Uxor, Ingegnere del Prestigio;2
-Baron “Peanut” Ripper;3
+Dafne, la Mite della Corda Brillante;3
+X. Q. Uxor, Ingegnere del Prestigio;1
+Baron “Peanut” Ripper;2
 Morgana “Saltello” l’Ambidestra;4

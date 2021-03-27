@@ -99,8 +99,8 @@ public class CruciferMain {
 			}
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			var cond = true;
-			int intChoice = 1;
-			//2if(true) return decks.get(intChoice);
+			int intChoice = 0;
+			if(true) return decks.get(intChoice);
 			do {
 				
 				var choice = keyboard.readLine();

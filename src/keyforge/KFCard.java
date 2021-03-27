@@ -114,6 +114,7 @@ public abstract class KFCard {
 		System.out.println(header + "Is new: " + isNew);
 		System.out.println(header + "Controlled: " + controlled);
 		System.out.println(header + "Ready:" + ready);
+		System.out.println(header + "House:" + house);		
 		if(leftNeighbor != null) {
 			System.out.println(header + "Left Neighbor: " + leftNeighbor.name);
 		}		

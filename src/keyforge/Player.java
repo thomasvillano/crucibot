@@ -58,18 +58,18 @@ public class Player {
 		targets = new ArrayList<KFCard>();
 		gameState = new GameState(this);
 	}
-	public void updateGameState(JSONObject gameState) {
-		this.gameState.update(gameState);
+	public void updateGameState(JSONObject gameState, String enemyName) {
+		this.gameState.update(gameState, enemyName);
 	}
 	public JSONArray forgeKey(JSONArray buttons) {
-		return this.clickButton(buttons, 0);
+		return this.clickButton(0);
 	}
 	public JSONArray playPlannedMoves() {
 		if(currentMove == null) {
 			currentMove = getNextMove();
 			cardSelection = true;
 		}
-		this.promptTitle = (promptTitle != null) ? promptTitle.replace("â€™", "'") : null;
+		this.promptTitle = (promptTitle != null) ? promptTitle.replace("’", "'") : null;
 		return this.genericMove();	
 	}
 	public boolean buttonEmpty() {
@@ -91,9 +91,9 @@ public class Player {
 		case "setup":
 			if(promptTitle != null && promptTitle.equals("Start Game")) {
 				checkFirstTurn();
-				return this.startGame(buttons);
+				return this.startGame();
 			} else if(promptTitle != null && promptTitle.equals("Mulligan")) {
-				return this.startGame(buttons);
+				return this.startGame();
 			} 
 			break;
 		case "house":
@@ -102,7 +102,7 @@ public class Player {
 			if(activePlayer && phase.equals("house") && 
 			(promptTitle == null || !promptTitle.toLowerCase().contains("archive"))) {	
 				this.activeHouse = this.gameState.selectHouse();
-				return this.chooseHouse(buttons);
+				return this.chooseHouse();
 			}
 			else if (promptTitle.toLowerCase().contains("archive")) {
 				buildTree();
@@ -110,7 +110,7 @@ public class Player {
 				currentMove = getNextMove();
 				currentMove.printMove();
 				var choice = currentMove.returnArchive ? "yes" : "no";
-				return this.clickButton(buttons, choice);
+				return this.clickButton(choice);
 			}
 			break;
 		case "main":
@@ -145,7 +145,7 @@ public class Player {
 		selectable.addAll(opponentDeck.stream().filter(x -> x.selectable && !x.selected).collect(Collectors.toList()));
 		if(buttons != null && buttons.length() > 0) {
 			var choice = rand.nextInt(buttons.length());
-			return this.clickButton(buttons, choice);
+			return this.clickButton(choice);
 		} else if (selectable.size() != 0) {
 			var choice = rand.nextInt(selectable.size());
 			var card = selectable.get(choice);
@@ -169,16 +169,16 @@ public class Player {
 			currentMove.printMove();
 		}
 		if(currentMove.move.equals("end"))
-			return this.endTurn(buttons);
+			return this.endTurn();
 		if(menuTitle.contains("end"))
-			return this.clickButton(buttons, "no");
+			return this.clickButton("no");
 		if(promptTitle.toLowerCase().contains("triggered")) {
 			if(buttons.isEmpty()) {
 				resetState();
 				casualMove = true;
 				return casualMove(); 
 			}
-			return clickButton(buttons, "done");
+			return clickButton("done");
 		}
 		if(cardSelection && !cardSelected) {
 			if(!promptTitle.toLowerCase().equals("play phase")){
@@ -200,10 +200,10 @@ public class Player {
 			targetSelection = (currentMove.targetToSelect > 0);
 			attachUpgrade = (currentMove.upgradesAttached > 0);
 			fightTargetSelection = (currentMove.move.equals("fight") && currentMove.target != null);
-			return this.clickButton(buttons, currentMove.move);
+			return this.clickButton(currentMove.move);
 		} else if (flankSelection) {
 			this.flankSelection = false;
-			return this.clickButton(buttons,  currentMove.flank);
+			return this.clickButton(currentMove.flank);
 		} else if(attachUpgrade || fightTargetSelection) {
 			attachUpgrade = false;
 			fightTargetSelection = false;
@@ -223,7 +223,7 @@ public class Player {
 				return this.selectCard(selectedTarget);
 			}
 			targetSelection = false;
-			var button = clickButton(buttons, "done");
+			var button = clickButton("done");
 			if(button != null)
 				return button;
 		} 
@@ -387,16 +387,16 @@ public class Player {
 				.put(buttons.getJSONObject(index).getString("uuid")).put(JSONObject.NULL);
 
 	}
-	public JSONArray clickButton(JSONArray buttons, String name) {
+	public JSONArray clickButton(String name) {
 		var list = Utils.jsonArrayToList(buttons);
 		var match = list.stream().filter(x -> x.toLowerCase().contains(name)).findFirst().orElse(null);
 		if(match == null)
 			return null;
 		var index = list.indexOf(match);
-		return clickButton(buttons, index);
+		return clickButton(index);
 	}
 	
-	public JSONArray clickButton(JSONArray buttons, int index) {
+	public JSONArray clickButton(int index) {
 
 		return new JSONArray().put("game").put("menuButton").put(
 				buttons.getJSONObject(index).has("arg") ? buttons.getJSONObject(index).get("arg") : JSONObject.NULL)
@@ -484,7 +484,7 @@ public class Player {
 		return this.getCardFromName(myDeck, name);
 	}
 	public KFCard getCardFromName(List<KFCard> deck, String name) {
-		var filteredName = name.replace("â€™", "'");
+		var filteredName = name.replace("’", "'");
 		return deck.parallelStream().filter(
 				x -> x.name.toLowerCase().equals(filteredName.toLowerCase()) && (x.getUuid() == null || x.getUuid().isEmpty()))
 				.findFirst().orElse(null);
@@ -550,39 +550,39 @@ public class Player {
 		}
 		return 0;
 	}
-	public JSONArray endTurn(JSONArray buttons) {
+	public JSONArray endTurn() {
 		if(deck.stream().filter(x -> x.selectable || x.playable).count() > 0) {
 			if(currentMove.endTurn) {
 				currentMove.endTurn = false;
-				return this.clickButton(buttons, "end"); 
+				return this.clickButton("end"); 
 			} else {
 				currentMove = null;
 				plannedMoves = null;
-				return this.clickButton(buttons, "yes");
+				return this.clickButton("yes");
 			}
 		} else if(promptTitle.toLowerCase().equals("end turn")) {
 			currentMove = null;
 			plannedMoves = null;
-			return this.clickButton(buttons, "yes");
+			return this.clickButton("yes");
 		}
 		currentMove = null;
 		plannedMoves = null;
-		return this.clickButton(buttons, "end");
+		return this.clickButton("end");
 	}
 
-	public JSONArray startGame(JSONArray buttons) {
+	public JSONArray startGame() {
 		int index = 0;
-		return clickButton(buttons, index);
+		return clickButton(index);
 	}
 
-	public JSONArray chooseHouse(JSONArray buttons) {
+	public JSONArray chooseHouse() {
 		
 		int index = 0;
 		for(var obj: buttons) {
 			var line = (JSONObject)obj;
 			var text = line.getString("text");
 			if(Utils.resolveHouse(text).equals(activeHouse))
-				return this.clickButton(buttons, index);
+				return this.clickButton(index);
 			index++;
 		}
 		return null;
@@ -600,11 +600,21 @@ public class Player {
 	 */
 	public void getControls(JSONObject obj) {
 		if(obj.has("controls")) {
-			var controls = obj.get("controls");
-			if (controls instanceof JSONArray) {
+			if (obj.get("controls") instanceof JSONArray) {
 				controls = obj.getJSONArray("controls");
 			} else {
-				System.out.println("controls " + controls + " are not an instance of JSONArray");
+				controls = new JSONArray();
+				if(obj.get("controls") instanceof JSONObject) {
+					var _controls = obj.getJSONObject("controls");
+					var _keys = _controls.keys();
+					while(_keys.hasNext()) {
+						var _key = _keys.next();
+						controls.put(_controls.get(_key));
+					}
+				} else {
+					System.out.println("controls are not an instance of JSONArray");
+				}
+				
 			}
 		}
 	}
@@ -613,45 +623,57 @@ public class Player {
 	 * @param obj
 	 */
 	public void getButtons(JSONObject obj) {
-		if(obj.has("buttons")) {
-			// make sure this is empty
-			buttons = null; 
-			var buttons = obj.get("buttons");
-			// changed, they are now JSON objects....
-			if(buttons instanceof JSONArray) {
+		if(obj.has("buttons") && obj.get("buttons") instanceof JSONArray) 
 				buttons = obj.getJSONArray("buttons");
-			} else if (buttons instanceof JSONObject) {
-				var j_buttons = obj.getJSONObject("buttons");
-				Iterator<String> keys = j_buttons.keys();
-				while(keys.hasNext()) {
-					String key = keys.next();
-					if (j_buttons.get(key) instanceof JSONArray) {
-						buttons = j_buttons.getJSONArray(key);
-					}
-				}	
-			} else {
-				//buttons are JSONObject
-				System.out.println("buttons " + buttons + " are not an instance of JSONArray");
+		else if(obj.has("buttons"))
+		{
+			if(!(obj.get("buttons") instanceof JSONObject)) {
+				System.out.println("hey");
 			}
+			JSONObject _buttons = obj.getJSONObject("buttons");
+			buttons = new JSONArray();
+			var _keys = _buttons.keys();
+			while(_keys.hasNext()) {
+				var _key = _keys.next();
+				if (_key.startsWith("_")) 
+					continue;
+				buttons.put(_buttons.get(_key));
+			}
+			System.out.println("check me out");		
+		}
+		else {
+			return;
 		}
 	}
 	public void getPhase(JSONObject obj) {
 		if(obj.has("phase")) {
-			phase = (String)obj.get("phase");
+			//perché?
+			var _phase = obj.get("phase");
+			phase = String.class.isInstance(_phase) 
+					? obj.getString("phase") 
+					: null;
+		}
 	}
-		
-	}
+	
 	public void getMenuTitle(JSONObject player) {
-		if(player.has("menuTitle")) {
-			menuTitle = JSONObject.class.isInstance(player.get("menuTitle")) ? 
-					composeMenuTitle(player.getJSONObject("menuTitle")) : player.getString("menuTitle");
+		if(player.has("menuTitle") ) {
+			var _menuTitle = player.get("menuTitle");
+			menuTitle = JSONObject.class.isInstance(_menuTitle) ?
+					composeMenuTitle(player.getJSONObject("menuTitle")) : 
+					( String.class.isInstance(_menuTitle) ?
+							player.getString("menuTitle") :
+							null);
 		}
 		
 	}
-	public void getIsActivePlayer(JSONObject player) {
+	public Boolean getIsActivePlayer(JSONObject player) {
 		if(player.has("activePlayer")) {
-			activePlayer = player.getBoolean("activePlayer");	
+			activePlayer = Boolean.class.isInstance(player.get("activePlayer")) ? 
+					player.getBoolean("activePlayer") :
+					false;	
+			return activePlayer;
 		}		
+		return this.activePlayer;
 	}
 	public void getPromptTitle(JSONObject player) {
 		try { 

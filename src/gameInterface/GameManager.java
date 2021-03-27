@@ -49,14 +49,14 @@ public class GameManager {
 	 * @param player
 	 */
 	private void updateBotPlayer(JSONObject player) {
-
+		if(!botPlayer.getIsActivePlayer(player))
+			return;
 		botPlayer.getCards(player);
 		botPlayer.getButtons(player);
 		botPlayer.getControls(player);
 		botPlayer.getPhase(player);
 		botPlayer.getPromptTitle(player);
 		botPlayer.getMenuTitle(player);
-		botPlayer.getIsActivePlayer(player);
 		botPlayer.getHouse(player);
 		botPlayer.checkStartGame();
 		botPlayer.checkMulligan();		
@@ -72,18 +72,25 @@ public class GameManager {
 			botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
 		}
 	}
-	
+	private Boolean checkClockMessage(JSONObject msg) 
+	{
+		if( msg.length() == 1  && 
+			msg.has("players") && 
+			msg.getJSONObject("players").has(botPlayer.name) && 
+			msg.getJSONObject("players").getJSONObject(botPlayer.name).length() == 1
+				) 
+			return true;
+		else return false;
+	}
 	/**
 	 * Unpack the results of the ws message and update the state of both players to evaluate moves
 	 * @param gameState
 	 * @return
 	 */
 	private JSONArray getWSStatus(JSONObject gameState) {
-		/**
-		 * Loop through all keys and use just the necessary ones
-		 * We need only players and owner maybe
-		 */
-		// maybe it makes more sense to log just the opponent name?
+		if(checkClockMessage(gameState))
+			return null;
+		
 		if((opponentPlayer == null || opponentPlayer.name != null) && gameState.has("owner")) 
 			opponentPlayer = new Player(gameState.getString("owner"),null);
 		
@@ -94,19 +101,11 @@ public class GameManager {
 			if(players.has(botPlayer.name))
 				updateBotPlayer(players.getJSONObject(botPlayer.name));
 		}
-		/***
-		 * 
-			
-			var status = checkStateON(opponent);
-			if(status != null) return status;
-			if(botPlayer.buttonEmpty() && botPlayer.controlsEmpty()) return null;		
-			updateGameState(gameState);
-			return botPlayer.planPhase();
-		 * 
-		 * 
-		 */
 		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) && 
 			(botPlayer.controls == null || botPlayer.controls.isEmpty()))
+			return null;
+		botPlayer.updateGameState(gameState, opponentPlayer.name);
+		if(!botPlayer.activePlayer)
 			return null;
 		return botPlayer.planPhase();
 	}
@@ -134,20 +133,9 @@ public class GameManager {
 		var status = checkStateON(opponent);
 		if(status != null) return status;
 		if(botPlayer.buttonEmpty() && botPlayer.controlsEmpty()) return null;		
-		updateGameState(gameState);
 		return botPlayer.planPhase();
 	}
-	private void updateGameState(JSONObject gameState) {
-		botPlayer.updateGameState(gameState);
-	}
-	private void checkMulligan(String promptTitle)
-	{
-		
-	}
-	private void checkStartGame(String promptTitle)
-	{
-		
-	}
+	
 	private JSONArray checkStateON(JSONObject opponent) 
 	{
 		if(opponent.has("left") && opponent.getBoolean("left")) {
