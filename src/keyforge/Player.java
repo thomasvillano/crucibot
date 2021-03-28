@@ -58,6 +58,7 @@ public class Player {
 	}
 	public void updateGameState(JSONObject gameState, String enemyName) {
 		this.gameState.update(gameState, enemyName);
+		this.gameState.updateCardsInPlay();
 	}
 	public JSONArray forgeKey(JSONArray buttons) {
 		return this.clickButton(0);
@@ -290,72 +291,68 @@ public class Player {
 	public String getDeck() { return this.dynamicDeckID; }
 	public void setDeck(String deckID) { this.dynamicDeckID = deckID; }
 
-	// if position.playarea then counter = 0; prevCard = card ecc
-	/**
-	 * BIG MESS
-	 * VERY BIG MESS
-	 * @param cardPiles
-	 * @param isOpponent
-	 */
+	private void getJSONObjectCardPile(JSONObject cardPile, String position, boolean isOpponent) {
+		var a = 1;
+	}
+	private void getJSONArrayCardPile(JSONArray cardPile, String position, boolean isOpponent) {
+		if(!isOpponent && position.equals("archives")) 
+			nonEmptyArchive = cardPile.length() > 0;
+		
+		KFCard prevCard = null;
+		
+		for (Object line : cardPile) {
+			JSONObject jsonLine = (JSONObject) line;
+			if (isOpponent && jsonLine.getBoolean("facedown"))
+				break;
+			KFCard card = getCardFromNameAndUuid(
+					jsonLine.has("name") ? jsonLine.getString("name") : "",
+					jsonLine.has("uuid") ? jsonLine.getString("uuid") : "", 
+					isOpponent, 
+					jsonLine.has("controlled") ? jsonLine.getBoolean("controlled") : false);
+			if (card == null) {
+				System.out.println("Error while linking card");
+				continue;
+			}
+			card.playable = !isOpponent && jsonLine.has("canPlay") && (jsonLine.get("canPlay") instanceof Boolean) ? jsonLine.getBoolean("canPlay") : false;
+			
+			card.position   = jsonLine.has("location") ? Utils.resolveFieldPosition(jsonLine.getString("location")) : card.position;
+			card.isEnemy    = isOpponent;
+			card.exhausted  = jsonLine.has("exhausted") ? jsonLine.getBoolean("exhausted") : card.exhausted;
+			card.ready      = !card.exhausted;
+			card.selectable = jsonLine.has("selectable") ? jsonLine.getBoolean("selectable") : card.selectable;
+			card.selected   = jsonLine.has("selected") ? jsonLine.getBoolean("selected") : false;
+			if (!KFCreature.class.isInstance(card))
+				continue;
+			var kCard      = (KFCreature) card;
+			kCard.taunt    = jsonLine.has("taunt") ? jsonLine.getBoolean("taunt") : kCard.taunt;
+			kCard.stunned  = jsonLine.has("stunned") ? jsonLine.getBoolean("stunned") : kCard.stunned;
+			kCard.ward     = jsonLine.has("wardBroken") ? jsonLine.getBoolean("wardBroken") : kCard.ward;
+			kCard.upgrades = getUpgrades(jsonLine, isOpponent);
+			var tokens     = (JSONObject) jsonLine.get("tokens");
+			kCard.damage   = tokens.has("damage") ? tokens.getInt("damage") : 0;
+			kCard.setCaptured(tokens.has("amber") ? tokens.getInt("amber") : 0);
+			
+			if (!position.equals("cardsInPlay") || prevCard == null)
+				continue;
+			
+			prevCard.rightNeighbor = card;
+			kCard.leftNeighbor = prevCard;
+			prevCard = kCard;
+		}
+	}
+	
 	public void convertCards(JSONObject cardPiles, boolean isOpponent) {
 		var positions = cardPiles.keys();
 
 		while (positions.hasNext()) {
-			KFCard prevCard = null;
 			var position = positions.next();
-			if(!(cardPiles.get(position) instanceof JSONArray))
-				continue;
-			JSONArray cardsInPosition = cardPiles.getJSONArray(position);
-			if(!isOpponent && position.equals("archives")) 
-				nonEmptyArchive = cardsInPosition.length() > 0;
-			for (Object line : cardsInPosition) {
-				JSONObject jsonLine = (JSONObject) line;
-				if (isOpponent && jsonLine.getBoolean("facedown"))
-					break;
-				Object canPlay = null;
-				if (!isOpponent)
-					canPlay = jsonLine.get("canPlay");
-				KFCard card;
-				var name = jsonLine.getString("name");
-				var uuid = jsonLine.getString("uuid");
-				var controlled = jsonLine.getBoolean("controlled");
-				//System.out.println("Card " + name + "\n\tcontrolled\t" + controlled + "\n\tis opponent\t" + isOpponent);
-				card = getCardFromNameAndUuid(name, uuid, isOpponent, controlled);
-				if (card != null) {
-					card.position = Utils.resolveFieldPosition(jsonLine.getString("location"));
-					if (!isOpponent && canPlay != JSONObject.NULL)
-						card.playable = jsonLine.getBoolean("canPlay");
-					card.isEnemy = isOpponent;
-					card.exhausted = jsonLine.getBoolean("exhausted");
-					card.ready = !card.exhausted;
-					card.selectable = jsonLine.getBoolean("selectable");
-					card.selected = jsonLine.has("selected") ? jsonLine.getBoolean("selected") : false;
-					var tokens = (JSONObject) jsonLine.get("tokens");
-					if (jsonLine.getString("type").equals("creature")) {
-						var kCard = (KFCreature) card;
-						kCard.taunt = jsonLine.getBoolean("taunt");
-						kCard.stunned = jsonLine.getBoolean("stunned");
-						kCard.ward = jsonLine.getBoolean("wardBroken");
-						kCard.upgrades = getUpgrades(jsonLine, isOpponent);
-						kCard.damage = tokens.has("damage") ? tokens.getInt("damage") : 0;
-						var amberC = tokens.has("amber") ? tokens.getInt("amber") : 0;
-						kCard.setCaptured(amberC);
-						//System.out.println("Damage set to " + kCard.damage + " and amber set to " + amberC + " for card " + name);
-					}
-					if(!isOpponent && card.position.equals(Utils.FieldPosition.hand)) {
-						System.out.println("Controlled card in hand : \n");
-						card.print(1);
-					}
-				} else
-					System.out.println("Unable to get card " + name);
-				if (position.equals("cardsInPlay")) {
-					if (prevCard != null && KFCreature.class.isInstance(prevCard) && KFCreature.class.isInstance(card)) {
-						prevCard.rightNeighbor = card;
-						card.leftNeighbor = prevCard;
-					}
-					if(KFCreature.class.isInstance(card))
-						prevCard = card;
-				}
+			if(cardPiles.get(position) instanceof JSONArray)
+			{
+				getJSONArrayCardPile(cardPiles.getJSONArray(position), position, isOpponent);
+			} else if (cardPiles.get(position) instanceof JSONObject) {
+				getJSONObjectCardPile(cardPiles.getJSONObject(position), position, isOpponent);
+			} else {
+				var a = 2;
 			}
 		}
 	}
@@ -667,7 +664,7 @@ public class Player {
 	
 	public void getMenuTitle(JSONObject player) {
 		/**
-		 * Sometimes we recieve transition messages,
+		 * Sometimes we receive transition messages,
 		 * the last one is the one that we have to consider
 		 */
 		try {
@@ -684,6 +681,7 @@ public class Player {
 						);
 			}
 		} catch(Exception e) {
+			System.out.println("Unable to get menutitle");
 			System.out.println(e.getMessage());
 			menuTitle = null;
 			return;
@@ -708,13 +706,21 @@ public class Player {
 	 * @param player
 	 */
 	public void getPromptTitle(JSONObject player) {
-		if(player.has("promptTitle")) {
-			var _promptTitle = player.get("promptTitle");
-			promptTitle = String.class.isInstance(_promptTitle) ? 
-					player.getString("promptTitle") : 
-						(JSONArray.class.isInstance(_promptTitle) ?
-								player.getJSONArray("promptTitle").getString(player.getJSONArray("promptTitle").length() - 1) :
-								null); 
+		try {
+			if(player.has("promptTitle")) {
+				var _promptTitle = player.get("promptTitle");
+				promptTitle = String.class.isInstance(_promptTitle) ? 
+						player.getString("promptTitle") : 
+							(JSONArray.class.isInstance(_promptTitle) ?
+									player.getJSONArray("promptTitle").getString(player.getJSONArray("promptTitle").length() - 1) :
+									null); 
+			}
+		} catch(Exception e) {
+			System.out.println("unable to get Prompt Title");
+			System.out.println(e.getMessage());
+			System.out.println(e.getStackTrace());
+			System.out.println(e.getCause());
+			return;
 		}
 	}
 	

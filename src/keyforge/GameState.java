@@ -53,18 +53,22 @@ public class GameState {
 		var j_bot   = players.has(botPlayer.name) ? players.getJSONObject(botPlayer.name) : null;
 		if(j_enemy != null && j_enemy.has("stats")) 
 		{
-			enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
+			enemyAmber = botPlayer.enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
 			var enemyKeys = j_enemy.getJSONObject("stats").getJSONObject("keys");
-			enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
+			enemyChains = botPlayer.enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
 			enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
+			botPlayer.enemyForgedKeys = Collections.frequency(enemyKeysForged.values(), true);
 		}
 		if(j_bot != null && j_bot.has("stats")) {
-			amber = j_bot.getJSONObject("stats").getInt("amber");
+			amber = botPlayer.possessedAmber = j_bot.getJSONObject("stats").getInt("amber");
 			var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
-			chains = j_bot.getJSONObject("stats").getInt("chains");
+			chains = botPlayer.chains = j_bot.getJSONObject("stats").getInt("chains");
 			keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
+			botPlayer.forgedKeys = Collections.frequency(keysForged.values(), true);
 		}
-		
+	}
+	public void updateCardsInPlay() 
+	{
 		cardsInPlay = PlannedMove.cloneCards(botPlayer.deck);
 		cardsInPlay.addAll(botPlayer.opponentDeck);
 		cardsInPlay = cardsInPlay.parallelStream()
@@ -81,16 +85,9 @@ public class GameState {
 				.filter(x -> x.position.equals(FieldPosition.playarea) && !x.isEnemy && KFCreature.class.isInstance(x))
 				.map(x -> (KFCreature)x)
 				.collect(Collectors.toList());
-		updateBotInfo();
+		return;
 	}
-	private void updateBotInfo() {
-		botPlayer.possessedAmber = this.amber;
-		botPlayer.enemyAmber = this.enemyAmber;
-		botPlayer.chains = this.chains;
-		botPlayer.enemyChains = this.enemyChains;
-		botPlayer.forgedKeys = Collections.frequency(keysForged.values(), true);
-		botPlayer.enemyForgedKeys = Collections.frequency(enemyKeysForged.values(), true);
-	}
+	
 	private void assessCard(KFCard card, KFAbility abil) {
 		List<KFCard> allMatches = new ArrayList<>();
 		allMatches = PlannedMove.applyEffectFilter(abil.target, cardsInPlay);
@@ -120,8 +117,14 @@ public class GameState {
 			var mod = rating.get(house) + modDeck + modHand + modPlayarea;
 			rating.replace(house, mod);
 		}
-		var key = rating.entrySet().parallelStream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-		return key;		
+		try {
+			var key = rating.entrySet().parallelStream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			return key;
+		} catch(Exception e) {
+			System.out.print("error while evaluating houses: ");
+			System.out.println(e.getMessage());
+			return null;
+		}
 	}
 	public double rateCard(KFCard card) {
 		if(KFCreature.class.isInstance(card)) {

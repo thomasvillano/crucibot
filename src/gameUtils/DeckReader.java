@@ -13,6 +13,10 @@ public class DeckReader {
 	private static List<KFCard> cards;
 	public List<KFCard> botDeck, opponentDeck;
 	public DeckReader() {}
+	/**
+	 * TODO change to JSON
+	 * @param fileName
+	 */
 	public DeckReader(String fileName)
 	{
 		cards = new ArrayList<KFCard>();
