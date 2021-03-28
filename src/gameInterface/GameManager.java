@@ -45,20 +45,19 @@ public class GameManager {
 	}
 	
 	/***
-	 * This is an entire mess....
 	 * @param player
 	 */
 	private void updateBotPlayer(JSONObject player) {
-		if(!botPlayer.getIsActivePlayer(player))
-			return;
-		botPlayer.getCards(player);
 		botPlayer.getButtons(player);
 		botPlayer.getControls(player);
 		botPlayer.getPhase(player);
 		botPlayer.getPromptTitle(player);
 		botPlayer.getMenuTitle(player);
-		botPlayer.getHouse(player);
 		botPlayer.checkStartGame();
+		if(!botPlayer.getIsActivePlayer(player))
+			return;
+		botPlayer.getCards(player);
+		botPlayer.getHouse(player);
 		botPlayer.checkMulligan();		
 	}
 	
@@ -66,7 +65,9 @@ public class GameManager {
 		if(botPlayer.opponentDeck == null && opponent.has("deckData"))
 		{
 			var deckName = opponent.getJSONObject("deckData").getString("name");
-			botPlayer.opponentDeck = CruciferMain.dr.AssignDeckByDeckName(deckName);
+			botPlayer.opponentDeck = botPlayer.opponentDeck == null ?
+						CruciferMain.dr.AssignDeckByDeckName(deckName) :
+						botPlayer.opponentDeck;
 		}
 		if(opponent.has("cardPiles")) {
 			botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
@@ -93,20 +94,27 @@ public class GameManager {
 		
 		if((opponentPlayer == null || opponentPlayer.name != null) && gameState.has("owner")) 
 			opponentPlayer = new Player(gameState.getString("owner"),null);
-		
+		/**
+		 * TODO if players not present? return null?
+		 */
 		if(gameState.has("players")) {
 			var players = gameState.getJSONObject("players");
 			if(opponentPlayer != null && players.has(opponentPlayer.name))
 				updateOpponent(players.getJSONObject(opponentPlayer.name));
+			/**
+			 * TODO if botplayer does not have a json message return null?
+			 */
 			if(players.has(botPlayer.name))
 				updateBotPlayer(players.getJSONObject(botPlayer.name));
-		}
+			else
+				return null;
+		} else
+			return null;
+		
 		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) && 
 			(botPlayer.controls == null || botPlayer.controls.isEmpty()))
 			return null;
 		botPlayer.updateGameState(gameState, opponentPlayer.name);
-		if(!botPlayer.activePlayer)
-			return null;
 		return botPlayer.planPhase();
 	}
 	/**

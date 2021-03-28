@@ -16,7 +16,6 @@ public class GameState {
 	private int enemyChains;
 	private Map<String, Boolean> keysForged;
 	private Map<String, Boolean> enemyKeysForged;
-	private Utils.House houseChosen;
 	private Player botPlayer;
 	public static String enemyName;
 	private List<KFCard> cardsInPlay;
@@ -40,11 +39,14 @@ public class GameState {
 		enemyKeysForged.put("red",false);
 		enemyKeysForged.put("yellow",false);
 		enemyKeysForged.put("blue",false);
-		houseChosen = null;
 		cardsInPlay = new ArrayList<KFCard>();
 		
 	}
-	
+	/***
+	 * TODO change to inline assignment
+	 * @param gameState
+	 * @param enemyName
+	 */
 	public void update(JSONObject gameState, String enemyName) {
 		var players = gameState.getJSONObject("players");
 		var j_enemy = players.has(enemyName) ? players.getJSONObject(enemyName) : null;
@@ -61,7 +63,6 @@ public class GameState {
 			var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
 			chains = j_bot.getJSONObject("stats").getInt("chains");
 			keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
-			houseChosen = j_bot.get("activeHouse") != JSONObject.NULL ? Utils.resolveHouse(j_bot.getString("activeHouse")) : null;
 		}
 		
 		cardsInPlay = PlannedMove.cloneCards(botPlayer.deck);
@@ -413,14 +414,10 @@ public class GameState {
 	public void setEnemyKeysForged(Map<String, Boolean> enemyKeysForged) {
 		this.enemyKeysForged = enemyKeysForged;
 	}
-	public void setHouse(Utils.House houseChosen) {
-		this.houseChosen = houseChosen;
-	}
 	public int getAmber() { return this.amber; }
 	public int getEnemyAmber() { return this.enemyAmber; }
 	public Map<String, Boolean> getKeysForged() { return this.keysForged; }
 	public Map<String, Boolean> getEnemyKeysForged() { return this.enemyKeysForged; }
-	public Utils.House getHouseChosen() { return this.houseChosen; }
 	public int getKeyCost() { return this.keyCost; }
 	public int getEnemyKeyCost() { return this.enemyKeyCost; }
 	public String getEnemyName() { return this.enemyName; }

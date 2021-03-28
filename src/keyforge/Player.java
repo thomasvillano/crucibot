@@ -10,8 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Player {
-	//public final String deckID2 = "5e70067b68217d0bcf1f3775";
-	//public final String deckID = "5e9aef36c25882708626f98f";
 	private String dynamicDeckID;
 	public String strategy;
 	public String name;
@@ -170,9 +168,9 @@ public class Player {
 		}
 		if(currentMove.move.equals("end"))
 			return this.endTurn();
-		if(menuTitle.contains("end"))
+		if(menuTitle != null && menuTitle.contains("end"))
 			return this.clickButton("no");
-		if(promptTitle.toLowerCase().contains("triggered")) {
+		if(promptTitle != null && promptTitle.toLowerCase().contains("triggered")) {
 			if(buttons.isEmpty()) {
 				resetState();
 				casualMove = true;
@@ -181,7 +179,7 @@ public class Player {
 			return clickButton("done");
 		}
 		if(cardSelection && !cardSelected) {
-			if(!promptTitle.toLowerCase().equals("play phase")){
+			if(promptTitle == null || !promptTitle.toLowerCase().equals("play phase")){
 				resetState();
 				casualMove = true;
 				return casualMove();
@@ -189,7 +187,7 @@ public class Player {
 			cardSelected = true;
 			return this.selectCard(currentMove.selectedCard); 
 		} else if(cardSelection && cardSelected) {
-			if(!promptTitle.equals(currentMove.selectedCard.getName())) {
+			if(promptTitle == null || !promptTitle.equals(currentMove.selectedCard.getName())) {
 				resetState();
 				casualMove = true;
 				return casualMove();
@@ -305,7 +303,9 @@ public class Player {
 		while (positions.hasNext()) {
 			KFCard prevCard = null;
 			var position = positions.next();
-			JSONArray cardsInPosition = (JSONArray) cardPiles.get(position);
+			if(!(cardPiles.get(position) instanceof JSONArray))
+				continue;
+			JSONArray cardsInPosition = cardPiles.getJSONArray(position);
 			if(!isOpponent && position.equals("archives")) 
 				nonEmptyArchive = cardsInPosition.length() > 0;
 			for (Object line : cardsInPosition) {
@@ -397,7 +397,9 @@ public class Player {
 	}
 	
 	public JSONArray clickButton(int index) {
-
+		/***
+		 * TODO could be a JSONArray not a JSONObject, wrong retrievement method...
+		 */
 		return new JSONArray().put("game").put("menuButton").put(
 				buttons.getJSONObject(index).has("arg") ? buttons.getJSONObject(index).get("arg") : JSONObject.NULL)
 				.put(buttons.getJSONObject(index).getString("uuid")).put(JSONObject.NULL);
@@ -603,20 +605,30 @@ public class Player {
 			if (obj.get("controls") instanceof JSONArray) {
 				controls = obj.getJSONArray("controls");
 			} else {
-				controls = new JSONArray();
 				if(obj.get("controls") instanceof JSONObject) {
-					var _controls = obj.getJSONObject("controls");
-					var _keys = _controls.keys();
-					while(_keys.hasNext()) {
-						var _key = _keys.next();
-						controls.put(_controls.get(_key));
-					}
+					controls = BuildJSONArrayFromMap(obj.getJSONObject("controls"));
 				} else {
 					System.out.println("controls are not an instance of JSONArray");
 				}
 				
 			}
 		}
+	}
+	private JSONArray BuildJSONArrayFromMap(JSONObject obj) {
+		var instance = new JSONArray();
+		var _keys = obj.keys();
+		while(_keys.hasNext()) {
+			var _key = _keys.next();
+			if (_key.startsWith("_")) 
+				continue;
+			var _value = obj.get(_key);
+			if(_value instanceof JSONArray) {
+				instance.put(((JSONArray)_value).get(0));
+			} else {
+				instance.put(_value);
+			}
+		}
+		return instance;
 	}
 	/**
 	 * Still a mess
@@ -630,72 +642,100 @@ public class Player {
 			if(!(obj.get("buttons") instanceof JSONObject)) {
 				System.out.println("hey");
 			}
-			JSONObject _buttons = obj.getJSONObject("buttons");
-			buttons = new JSONArray();
-			var _keys = _buttons.keys();
-			while(_keys.hasNext()) {
-				var _key = _keys.next();
-				if (_key.startsWith("_")) 
-					continue;
-				buttons.put(_buttons.get(_key));
-			}
-			System.out.println("check me out");		
+			buttons = BuildJSONArrayFromMap(obj.getJSONObject("buttons"));
 		}
 		else {
+			// Buttons could be left dirty by previous assignment 
+			buttons = null;
 			return;
 		}
 	}
 	public void getPhase(JSONObject obj) {
 		if(obj.has("phase")) {
-			//perché?
+			/**
+			 * Sometimes we get "transition messages"
+			 * such as ['house', 'main'] meaning that we did house but we are in main now
+			 */
 			var _phase = obj.get("phase");
 			phase = String.class.isInstance(_phase) 
 					? obj.getString("phase") 
-					: null;
+					: ( JSONArray.class.isInstance(_phase)	?
+							obj.getJSONArray("phase").getString(obj.getJSONArray("phase").length() - 1) : 
+							null);
 		}
 	}
 	
 	public void getMenuTitle(JSONObject player) {
-		if(player.has("menuTitle") ) {
-			var _menuTitle = player.get("menuTitle");
-			menuTitle = JSONObject.class.isInstance(_menuTitle) ?
-					composeMenuTitle(player.getJSONObject("menuTitle")) : 
-					( String.class.isInstance(_menuTitle) ?
-							player.getString("menuTitle") :
-							null);
+		/**
+		 * Sometimes we recieve transition messages,
+		 * the last one is the one that we have to consider
+		 */
+		try {
+			if(player.has("menuTitle") ) {
+				var _menuTitle = player.get("menuTitle");
+				menuTitle = JSONObject.class.isInstance(_menuTitle) ?
+						composeMenuTitle(player.getJSONObject("menuTitle")) : 
+						( String.class.isInstance(_menuTitle) ?
+								player.getString("menuTitle") :
+								( JSONArray.class.isInstance(_menuTitle) ?
+										player.getJSONArray("menuTitle").getString(player.getJSONArray("menuTitle").length() - 1):
+										null
+								)
+						);
+			}
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+			menuTitle = null;
+			return;
 		}
+		
 		
 	}
 	public Boolean getIsActivePlayer(JSONObject player) {
 		if(player.has("activePlayer")) {
-			activePlayer = Boolean.class.isInstance(player.get("activePlayer")) ? 
+			var _activePlayer = player.get("activePlayer");
+			activePlayer = Boolean.class.isInstance(_activePlayer) ? 
 					player.getBoolean("activePlayer") :
-					false;	
+					(JSONArray.class.isInstance(_activePlayer) ?
+							player.getJSONArray("activePlayer").getBoolean(player.getJSONArray("activePlayer").length() -1) : 
+							null);	
 			return activePlayer;
 		}		
 		return this.activePlayer;
 	}
+	/***
+	 * TODO 
+	 * @param player
+	 */
 	public void getPromptTitle(JSONObject player) {
-		try { 
-			promptTitle = player.has("promptTitle") 
-				? player.getString("promptTitle") 
-				: null; 
-		} catch(Exception e) {}	
+		if(player.has("promptTitle")) {
+			var _promptTitle = player.get("promptTitle");
+			promptTitle = String.class.isInstance(_promptTitle) ? 
+					player.getString("promptTitle") : 
+						(JSONArray.class.isInstance(_promptTitle) ?
+								player.getJSONArray("promptTitle").getString(player.getJSONArray("promptTitle").length() - 1) :
+								null); 
+		}
 	}
 	
 	private static String composeMenuTitle(JSONObject menuTitle) {
-		var toAssign = menuTitle.getString("text");
-		if(!menuTitle.has("values"))
+		try {
+			var toAssign = menuTitle.getString("text");
+			if(!menuTitle.has("values"))
+				return toAssign;
+			var values = menuTitle.get("values");
+			Pattern p = Pattern.compile("(?<=\\{\\{).*(?=\\}\\})");
+			Matcher m = p.matcher(toAssign);
+			while(m.find()) {
+				var value = ((JSONObject)values).get(m.group(0));
+				toAssign = toAssign.replaceAll("\\{\\{" + m.group(0) + "\\}\\}", value.toString());
+			}
+			
 			return toAssign;
-		var values = menuTitle.get("values");
-		Pattern p = Pattern.compile("(?<=\\{\\{).*(?=\\}\\})");
-		Matcher m = p.matcher(toAssign);
-		while(m.find()) {
-			var value = ((JSONObject)values).get(m.group(0));
-			toAssign = toAssign.replaceAll("\\{\\{" + m.group(0) + "\\}\\}", value.toString());
+		} catch (Exception e) {
+			return null;
 		}
 		
-		return toAssign;
 	}
 	public void checkStartGame() {
 		if(promptTitle != null && "start game".equals(promptTitle.toLowerCase())) {
@@ -712,10 +752,21 @@ public class Player {
 				mulligan = true;
 		}
 	}
-	public void getHouse(JSONObject obj) {
-		if(obj.has("activeHouse")) {
-			activeHouse = (obj.get("activeHouse") != JSONObject.NULL) ? 
-					Utils.resolveHouse(obj.getString("activeHouse")) : null;
+	public Utils.House getHouse(JSONObject obj) {
+		try {
+			if(obj.has("activeHouse") && (obj.get("activeHouse") != JSONObject.NULL)) {
+				activeHouse =  String.class.isInstance(obj.get("activeHouse")) ? 
+						Utils.resolveHouse(obj.getString("activeHouse")) : 
+						(JSONArray.class.isInstance(obj.get("activeHouse")) ? 
+							Utils.resolveHouse(obj.getJSONArray("activeHouse").getString(obj.getJSONArray("activeHouse").length() -1)) :
+							null);
+			}
+			return activeHouse;	
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.out.println("House not found");
+			return null;
 		}
+		
 	}
 }
