@@ -31,4 +31,5 @@ public class KFUpgrade extends KFCard {
 		this.position = FieldPosition.playarea;
 		this.isNew = true;
 	}
+	
 }

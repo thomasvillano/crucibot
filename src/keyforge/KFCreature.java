@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import gameUtils.Utils;
 import gameUtils.Utils.FieldPosition;
@@ -84,6 +87,18 @@ public class KFCreature extends KFCard {
 	public void setCaptured(int capture) {
 		this.hasCaptured += capture;
 	}
+
+	public void updateByJSON(JSONObject obj, boolean isEnemy) {
+		super.updateByJSON(obj, isEnemy);
+		taunt    = obj.has("taunt") ? obj.getBoolean("taunt") : taunt;
+		stunned  = obj.has("stunned") ? obj.getBoolean("stunned") : stunned;
+		ward     = obj.has("wardBroken") ? obj.getBoolean("wardBroken") : ward;
+		var tokens     = (JSONObject) obj.get("tokens");
+		damage   = tokens.has("damage") ? tokens.getInt("damage") : 0;
+		setCaptured(tokens.has("amber") ? tokens.getInt("amber") : 0);
+		
+	}
+	
 	public int destroy() {
 		var toReturn = hasCaptured;
 		hasCaptured = 0;

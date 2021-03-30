@@ -79,7 +79,7 @@ public class GameManager {
 			msg.has("players") && 
 			msg.getJSONObject("players").has(botPlayer.name) && 
 			msg.getJSONObject("players").getJSONObject(botPlayer.name).length() == 1
-				) 
+		) 
 			return true;
 		else return false;
 	}
@@ -99,8 +99,12 @@ public class GameManager {
 		 */
 		if(gameState.has("players")) {
 			var players = gameState.getJSONObject("players");
-			if(opponentPlayer != null && players.has(opponentPlayer.name))
+			if(opponentPlayer != null && players.has(opponentPlayer.name)) {
 				updateOpponent(players.getJSONObject(opponentPlayer.name));
+				JSONArray hasLeft;
+				if((hasLeft = checkStateON(players.getJSONObject(opponentPlayer.name))) != null)
+					return hasLeft;
+			}
 			/**
 			 * TODO if botplayer does not have a json message return null?
 			 */

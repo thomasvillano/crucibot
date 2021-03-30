@@ -44,6 +44,7 @@ public class GameState {
 	}
 	/***
 	 * TODO change to inline assignment
+	 * TODO transition messages :)
 	 * @param gameState
 	 * @param enemyName
 	 */
@@ -53,18 +54,33 @@ public class GameState {
 		var j_bot   = players.has(botPlayer.name) ? players.getJSONObject(botPlayer.name) : null;
 		if(j_enemy != null && j_enemy.has("stats")) 
 		{
-			enemyAmber = botPlayer.enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
-			var enemyKeys = j_enemy.getJSONObject("stats").getJSONObject("keys");
-			enemyChains = botPlayer.enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
-			enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
-			botPlayer.enemyForgedKeys = Collections.frequency(enemyKeysForged.values(), true);
+			try 
+			{
+				enemyAmber = botPlayer.enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
+				var enemyKeys = j_enemy.getJSONObject("stats").getJSONObject("keys");
+				enemyChains = botPlayer.enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
+				enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
+				botPlayer.enemyForgedKeys = Collections.frequency(enemyKeysForged.values(), true);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				System.out.println("error, check update, jenemy section");
+				/*doesn't matter*/ 
+			}
+			
 		}
 		if(j_bot != null && j_bot.has("stats")) {
-			amber = botPlayer.possessedAmber = j_bot.getJSONObject("stats").getInt("amber");
-			var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
-			chains = botPlayer.chains = j_bot.getJSONObject("stats").getInt("chains");
-			keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
-			botPlayer.forgedKeys = Collections.frequency(keysForged.values(), true);
+			try
+			{
+				amber = botPlayer.possessedAmber = j_bot.getJSONObject("stats").getInt("amber");
+				var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
+				chains = botPlayer.chains = j_bot.getJSONObject("stats").getInt("chains");
+				keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
+				botPlayer.forgedKeys = Collections.frequency(keysForged.values(), true);
+			} catch (Exception e) { 
+				System.out.println(e.getMessage());
+				System.out.println("error, check update, jenemy section");
+				/*Doesn't matter*/ 
+			}
 		}
 	}
 	public void updateCardsInPlay() 

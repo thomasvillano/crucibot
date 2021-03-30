@@ -292,8 +292,27 @@ public class Player {
 	public void setDeck(String deckID) { this.dynamicDeckID = deckID; }
 
 	private void getJSONObjectCardPile(JSONObject cardPile, String position, boolean isOpponent) {
-		var a = 1;
+		var _keys = cardPile.keys();
+		while(_keys.hasNext()) {
+			var _key = _keys.next();
+			if(_key.startsWith("_"))
+				continue;
+			if(!(cardPile.get(_key) instanceof JSONArray)) 
+			{
+				System.out.println("Help");
+				continue;
+			} 
+			
+			getJSONArrayCardPile(cardPile.getJSONArray(_key), position, isOpponent);
+		}
 	}
+	
+	/***
+	 * Move card assignment inside card class...
+	 * @param cardPile
+	 * @param position
+	 * @param isOpponent
+	 */
 	private void getJSONArrayCardPile(JSONArray cardPile, String position, boolean isOpponent) {
 		if(!isOpponent && position.equals("archives")) 
 			nonEmptyArchive = cardPile.length() > 0;
@@ -313,31 +332,19 @@ public class Player {
 				System.out.println("Error while linking card");
 				continue;
 			}
-			card.playable = !isOpponent && jsonLine.has("canPlay") && (jsonLine.get("canPlay") instanceof Boolean) ? jsonLine.getBoolean("canPlay") : false;
-			
-			card.position   = jsonLine.has("location") ? Utils.resolveFieldPosition(jsonLine.getString("location")) : card.position;
-			card.isEnemy    = isOpponent;
-			card.exhausted  = jsonLine.has("exhausted") ? jsonLine.getBoolean("exhausted") : card.exhausted;
-			card.ready      = !card.exhausted;
-			card.selectable = jsonLine.has("selectable") ? jsonLine.getBoolean("selectable") : card.selectable;
-			card.selected   = jsonLine.has("selected") ? jsonLine.getBoolean("selected") : false;
+			card.updateByJSON(jsonLine, isOpponent);
 			if (!KFCreature.class.isInstance(card))
 				continue;
-			var kCard      = (KFCreature) card;
-			kCard.taunt    = jsonLine.has("taunt") ? jsonLine.getBoolean("taunt") : kCard.taunt;
-			kCard.stunned  = jsonLine.has("stunned") ? jsonLine.getBoolean("stunned") : kCard.stunned;
-			kCard.ward     = jsonLine.has("wardBroken") ? jsonLine.getBoolean("wardBroken") : kCard.ward;
-			kCard.upgrades = getUpgrades(jsonLine, isOpponent);
-			var tokens     = (JSONObject) jsonLine.get("tokens");
-			kCard.damage   = tokens.has("damage") ? tokens.getInt("damage") : 0;
-			kCard.setCaptured(tokens.has("amber") ? tokens.getInt("amber") : 0);
+			
+			// TODO improve
+			((KFCreature)card).upgrades = getUpgrades(jsonLine, isOpponent);
 			
 			if (!position.equals("cardsInPlay") || prevCard == null)
 				continue;
-			
+			// TODO move assignment into card
 			prevCard.rightNeighbor = card;
-			kCard.leftNeighbor = prevCard;
-			prevCard = kCard;
+			card.leftNeighbor = prevCard;
+			prevCard = card;
 		}
 	}
 	

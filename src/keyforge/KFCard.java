@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
+
 import gameUtils.Utils;
 import gameUtils.Utils.FieldPosition;
 
@@ -149,6 +151,18 @@ public abstract class KFCard {
 		exhausted = true;
 		playable = false;
 	}
+	
+	public void updateByJSON(JSONObject obj, boolean isOpponent) {
+		isEnemy    = isOpponent;
+		playable   = !isEnemy && obj.has("canPlay") && (obj.get("canPlay") instanceof Boolean) ? obj.getBoolean("canPlay") : false;
+		position   = obj.has("location") ? Utils.resolveFieldPosition(obj.getString("location")) : position;
+		exhausted  = obj.has("exhausted") ? obj.getBoolean("exhausted") : exhausted;
+		ready      = !exhausted;
+		selectable = obj.has("selectable") ? obj.getBoolean("selectable") : selectable;
+		selected   = obj.has("selected") ? obj.getBoolean("selected") : false;
+		
+	}
+	
 	public boolean hasAction() {
 		return hasAbility("action");
 	}
@@ -161,7 +175,6 @@ public abstract class KFCard {
 	public boolean hasReap() {
 		return hasAbility("reap");
 	}
-	
 	public boolean isNew() { return this.isNew; }
 	public void setIsNew(boolean isNew) { this.isNew = isNew; }
 	public boolean isControlled() { return this.controlled; }
