@@ -24,6 +24,7 @@ public abstract class KFCard {
 	protected boolean playable;
 	protected boolean selectable;
 	protected boolean selected;
+	public int dynamicIndexPosition;
 	private String uuid;
 	public KFCard() {	}
 	public KFCard(KFCard card) {	
@@ -110,8 +111,13 @@ public abstract class KFCard {
 		var header = "";
 		for(int i = 0; i < index; i++)
 			header += "\t";
-		System.out.println(header + "Name: " + getName());
-		System.out.println(header + "Position: " + getPosition().name());
+		System.out.println();
+		System.out.println(header + "Name: " + getName().toUpperCase());
+		System.out.println(header + "Position: " + getPosition().name().toUpperCase());
+		System.out.println();
+		System.out.println(header + "Playable: " + playable);
+		System.out.println(header + "Selectable: " + selectable);
+		System.out.println();
 		System.out.println(header + "Is enemy: " + isEnemy);
 		System.out.println(header + "Is new: " + isNew);
 		System.out.println(header + "Controlled: " + controlled);
@@ -153,6 +159,7 @@ public abstract class KFCard {
 	}
 	
 	public void updateByJSON(JSONObject obj, boolean isOpponent) {
+		//TODO manage transition messages extending all the conditional assignments.
 		isEnemy    = isOpponent;
 		playable   = !isEnemy && obj.has("canPlay") && (obj.get("canPlay") instanceof Boolean) ? obj.getBoolean("canPlay") : false;
 		position   = obj.has("location") ? Utils.resolveFieldPosition(obj.getString("location")) : position;

@@ -57,7 +57,7 @@ public class LobbyWebSocket implements Listener {
 			webSocket.sendText("42" + response.toString(), true);
 		}
 		//nel caso l'untente lascia il game, esce anche il bot (per evitare che si inchiodi dentro il game e non esca più)
-		if(dataStr.contains("gamestate") && dataStr.contains(username + "'s game")) {
+		if(dataStr.contains("gamestate") && dataStr.contains("thom" + "'s game")) {
 			JSONArray gameInfo = new JSONArray(data.toString().substring(2));
 			String id = gameInfo.getJSONObject(1).getString("id");
 			JSONObject players = gameInfo.getJSONObject(1).getJSONObject("players");

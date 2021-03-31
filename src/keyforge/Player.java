@@ -292,21 +292,86 @@ public class Player {
 	public void setDeck(String deckID) { this.dynamicDeckID = deckID; }
 
 	private void getJSONObjectCardPile(JSONObject cardPile, String position, boolean isOpponent) {
-		var _keys = cardPile.keys();
-		while(_keys.hasNext()) {
-			var _key = _keys.next();
-			if(_key.startsWith("_"))
+		var keys = cardPile.keys();
+		KFCard previousCard = null;
+		int dynamicID = -1;
+		while(keys.hasNext()) {
+			dynamicID++;
+			var key = keys.next();
+			if(key.startsWith("_"))
 				continue;
-			if(!(cardPile.get(_key) instanceof JSONArray)) 
+			if(!(cardPile.get(key) instanceof JSONArray)) 
 			{
-				System.out.println("Help");
+				try {
+					var intID = Integer.parseInt(key);
+					updateCardByDynamicID(cardPile.getJSONObject(key), intID, position, isOpponent);
+				} catch(Exception e) {
+					System.out.println("Unable to convert to string updateCardByDynamicIDs with id" + key);
+					System.out.println(e.getMessage());
+				}
 				continue;
-			} 
+			}
+			try 
+			{
+				var el = cardPile.getJSONArray(key).getJSONObject(0);
+
+				if (!position.equals("cardsInPlay") || previousCard == null)
+				{
+					previousCard = updateCard(el, position, isOpponent, dynamicID);
+				} else {
+					previousCard =  updateCard(el, position, isOpponent, dynamicID, previousCard);
+				}
+			} catch(Exception e) {
+				System.out.println("not a jsonobject inside getJSONObjectCardPile");
+				continue;
+			}
 			
-			getJSONArrayCardPile(cardPile.getJSONArray(_key), position, isOpponent);
 		}
 	}
+	private void updateCardByDynamicID(JSONObject jsonLine, int dynamicID, String position, boolean isOpponent) {
+		var deck = isOpponent ? opponentDeck : this.deck;
+		KFCard card = deck.stream().filter(x -> x.dynamicIndexPosition == dynamicID && x.position.name().equals(position)).findFirst().orElse(null);
+		if(card == null) 
+		{
+			System.out.println("Unable to get card with dynamic id " + dynamicID + " while updating with it");
+			return;
+		}
+		card.updateByJSON(jsonLine, isOpponent);
+		return;
+	}
 	
+	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID, KFCard neighbor) {
+		var card = updateCard(jsonLine, position, isOpponent, dynamicID);
+		if(card == null)
+			return card;
+		neighbor.rightNeighbor = card;
+		card.leftNeighbor = neighbor;
+		return card;
+		
+	}
+	
+	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID) {
+		if (isOpponent && jsonLine.getBoolean("facedown"))
+			return null;
+		KFCard card = getCardFromNameAndUuid(
+				jsonLine.has("name") ? jsonLine.getString("name") : "",
+				jsonLine.has("uuid") ? jsonLine.getString("uuid") : "", 
+				isOpponent, 
+				jsonLine.has("controlled") ? jsonLine.getBoolean("controlled") : false);
+		if (card == null) {
+			System.out.println("Error while linking card");
+			return null;
+		}
+		card.updateByJSON(jsonLine, isOpponent);
+		card.dynamicIndexPosition = dynamicID;
+		if (!KFCreature.class.isInstance(card))
+			return card;
+		
+		// TODO improve
+		((KFCreature)card).upgrades = getUpgrades(jsonLine, isOpponent);
+		
+		return card;
+	}
 	/***
 	 * Move card assignment inside card class...
 	 * @param cardPile
@@ -318,33 +383,18 @@ public class Player {
 			nonEmptyArchive = cardPile.length() > 0;
 		
 		KFCard prevCard = null;
-		
+		int index = -1;
 		for (Object line : cardPile) {
+			index++;
 			JSONObject jsonLine = (JSONObject) line;
 			if (isOpponent && jsonLine.getBoolean("facedown"))
 				break;
-			KFCard card = getCardFromNameAndUuid(
-					jsonLine.has("name") ? jsonLine.getString("name") : "",
-					jsonLine.has("uuid") ? jsonLine.getString("uuid") : "", 
-					isOpponent, 
-					jsonLine.has("controlled") ? jsonLine.getBoolean("controlled") : false);
-			if (card == null) {
-				System.out.println("Error while linking card");
-				continue;
+			if (!position.equals("cardsInPlay") || prevCard == null) {
+				prevCard = updateCard(jsonLine, position, isOpponent, index);
+			} else {
+				prevCard = updateCard(jsonLine, position, isOpponent, index, prevCard);
 			}
-			card.updateByJSON(jsonLine, isOpponent);
-			if (!KFCreature.class.isInstance(card))
-				continue;
-			
-			// TODO improve
-			((KFCreature)card).upgrades = getUpgrades(jsonLine, isOpponent);
-			
-			if (!position.equals("cardsInPlay") || prevCard == null)
-				continue;
-			// TODO move assignment into card
-			prevCard.rightNeighbor = card;
-			card.leftNeighbor = prevCard;
-			prevCard = card;
+			prevCard.print();
 		}
 	}
 	
@@ -359,7 +409,7 @@ public class Player {
 			} else if (cardPiles.get(position) instanceof JSONObject) {
 				getJSONObjectCardPile(cardPiles.getJSONObject(position), position, isOpponent);
 			} else {
-				var a = 2;
+				System.out.println("Check me out");
 			}
 		}
 	}

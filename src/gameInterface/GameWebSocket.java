@@ -46,10 +46,17 @@ public class GameWebSocket implements Listener {
 			longData += dataStr;
 			if(last) {
 				update = false;
-				JSONObject gameState = new JSONArray(longData.substring(2)).getJSONObject(1);
-				JSONArray response = gm.update(gameState);
-				if(response != null)
-					webSocket.sendText("42" + response.toString(), true);
+				try {
+					JSONObject gameState = new JSONArray(longData.substring(2)).getJSONObject(1);
+					JSONArray response = gm.update(gameState);
+					if(response != null)
+						webSocket.sendText("42" + response.toString(), true);
+				} catch(Exception e) {
+					System.out.println("Error while receiving a message");
+					System.out.println(e.getMessage());
+				}
+				
+				
 			}
 		}
 		return Listener.super.onText(webSocket, data, last);

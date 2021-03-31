@@ -54,9 +54,9 @@ public class GameManager {
 		botPlayer.getPromptTitle(player);
 		botPlayer.getMenuTitle(player);
 		botPlayer.checkStartGame();
+		botPlayer.getCards(player);
 		if(!botPlayer.getIsActivePlayer(player))
 			return;
-		botPlayer.getCards(player);
 		botPlayer.getHouse(player);
 		botPlayer.checkMulligan();		
 	}
