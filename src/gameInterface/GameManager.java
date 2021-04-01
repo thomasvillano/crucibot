@@ -2,14 +2,9 @@ package gameInterface;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import gameUtils.Utils;
-import keyforge.GameState;
 import keyforge.Player;
 
 public class GameManager {

@@ -1,10 +1,9 @@
 package keyforge;
 
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public class KFUpgrade extends KFCard {
-	public KFUpgrade(String name, Utils.House house)
+	public KFUpgrade(String name, House house)
 	{
 		super(name, house);
 	}

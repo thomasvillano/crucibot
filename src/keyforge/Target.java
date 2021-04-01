@@ -1,6 +1,6 @@
 package keyforge;
 
-import gameUtils.Utils;
+import static gameUtils.Utils.*;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -11,7 +11,7 @@ public class Target {
 	public List<String> conds;
 	public List<KFCard> cards;
 	public int tValue;
-	public Utils.FieldPosition tPosition;
+	public FieldPosition tPosition;
 	public String tHouse;
 	public boolean isEmpty;
 	public Boolean isEnemy;
@@ -34,8 +34,8 @@ public class Target {
 		conditions = new ArrayList<Predicate<KFCard>>();
 		this.typeConditions();
 		if(tHouse != null) {
-			if(tHouse.startsWith("not")) conditions.add(x -> !x.house.equals(Utils.resolveHouse(tHouse.split("_")[1])));
-			else conditions.add(x -> x.house.equals(Utils.resolveHouse(tHouse)));			
+			if(tHouse.startsWith("not")) conditions.add(x -> !x.house.equals(resolveHouse(tHouse.split("_")[1])));
+			else conditions.add(x -> x.house.equals(resolveHouse(tHouse)));			
 		}
 		if(tName != null) {
 			if (tName.equals("this")) conditions.add(x -> x.equals(card)); 

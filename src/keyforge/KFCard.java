@@ -4,17 +4,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
-
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public abstract class KFCard {
 	protected String name;
-	protected Utils.House house;
+	protected House house;
 	protected int amber;
 	protected KFCard leftNeighbor;
 	protected KFCard rightNeighbor;
-	protected Utils.FieldPosition position;
+	protected FieldPosition position;
 	protected List<KFAbility> abilities;
 	protected boolean isNew;
 	private boolean controlled;
@@ -26,6 +24,7 @@ public abstract class KFCard {
 	protected boolean selected;
 	public int dynamicIndexPosition;
 	private String uuid;
+	
 	public KFCard() {	}
 	public KFCard(KFCard card) {	
 		name = card.getName();
@@ -42,11 +41,12 @@ public abstract class KFCard {
 		uuid = card.getUuid();
 		isEnemy = card.isEnemy;
 	}
-	public KFCard(String name, Utils.House house) {
+	public KFCard(String name, House house) {
 		this.abilities = new ArrayList<KFAbility>();
 		this.name = name;
 		this.house = house;
 	}
+	
 	public String getUuid() { return this.uuid; }
 	public void setUuid(String uuid) { this.uuid = uuid; }
 	private boolean getSelectable() { return this.selectable; }
@@ -58,7 +58,7 @@ public abstract class KFCard {
 	private KFCard getRightNeighbor() { return this.rightNeighbor; }
 	private KFCard getLeftNeighBor() { return this.leftNeighbor; }
 	public String getName() { return this.name; }
-	public Utils.House getHouse() { return this.house; }
+	public House getHouse() { return this.house; }
 	public int getAmber() {	return this.amber; }
 	
 	public abstract void resetModifiers();
@@ -85,7 +85,7 @@ public abstract class KFCard {
 	public abstract void updateAfterPlay();
 	public void updateCardAfterDiscard() {
 		this.playable = false;
-		this.position = Utils.FieldPosition.discard;
+		this.position = FieldPosition.discard;
 	}
 	public void updateCardAfterIgnore() {
 		this.playable = false;
@@ -94,10 +94,10 @@ public abstract class KFCard {
 		abilities.forEach(x -> x.assessEffect(this, matches));
 	}
 	public void setHouse(String house) {
-		this.house = Utils.resolveHouse(house);
+		this.house = resolveHouse(house);
 	}
 	public boolean getFriendPlaying() {
-		return !this.isEnemy && this.position.equals(Utils.FieldPosition.playarea);
+		return !this.isEnemy && this.position.equals(FieldPosition.playarea);
 	}
 	public void assessCard() {
 		for(var abil : abilities) {
@@ -114,6 +114,7 @@ public abstract class KFCard {
 		System.out.println();
 		System.out.println(header + "Name: " + getName().toUpperCase());
 		System.out.println(header + "Position: " + getPosition().name().toUpperCase());
+		System.out.println(header + "house: " + house.name().toUpperCase());
 		System.out.println();
 		System.out.println(header + "Playable: " + playable);
 		System.out.println(header + "Selectable: " + selectable);
@@ -122,7 +123,6 @@ public abstract class KFCard {
 		System.out.println(header + "Is new: " + isNew);
 		System.out.println(header + "Controlled: " + controlled);
 		System.out.println(header + "Ready:" + ready);
-		System.out.println(header + "House:" + house);		
 		if(leftNeighbor != null) {
 			System.out.println(header + "Left Neighbor: " + leftNeighbor.name);
 		}		
@@ -158,16 +158,14 @@ public abstract class KFCard {
 		playable = false;
 	}
 	
-	public void updateByJSON(JSONObject obj, boolean isOpponent) {
-		//TODO manage transition messages extending all the conditional assignments.
+	public void updateByJSON(JSONObject obj, boolean isOpponent) { 
 		isEnemy    = isOpponent;
-		playable   = !isEnemy && obj.has("canPlay") && (obj.get("canPlay") instanceof Boolean) ? obj.getBoolean("canPlay") : false;
-		position   = obj.has("location") ? Utils.resolveFieldPosition(obj.getString("location")) : position;
-		exhausted  = obj.has("exhausted") ? obj.getBoolean("exhausted") : exhausted;
+		playable   = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "canPlay"), playable);
+		position   = resolveFieldPosition(coalesce(getValueFromClassAndJSON(obj, String.class, "location"), position.name()));
+		exhausted  = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "exhausted"), exhausted);
 		ready      = !exhausted;
-		selectable = obj.has("selectable") ? obj.getBoolean("selectable") : selectable;
-		selected   = obj.has("selected") ? obj.getBoolean("selected") : false;
-		
+		selectable = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "selectable"), selectable);
+		selected   = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "selected"), selected);
 	}
 	
 	public boolean hasAction() {

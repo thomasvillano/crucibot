@@ -1,6 +1,6 @@
 package keyforge;
 
-import gameUtils.Utils;
+import static gameUtils.Utils.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +32,7 @@ public class Player {
 	private boolean attachUpgrade;
 	private boolean fightTargetSelection;
 	public PlannedMove currentMove;
-	public Utils.House activeHouse;
+	public House activeHouse;
 	public int forgedKeys;
 	public int enemyForgedKeys;
 	public int possessedAmber;
@@ -330,7 +330,7 @@ public class Player {
 	}
 	private void updateCardByDynamicID(JSONObject jsonLine, int dynamicID, String position, boolean isOpponent) {
 		var deck = isOpponent ? opponentDeck : this.deck;
-		KFCard card = deck.stream().filter(x -> x.dynamicIndexPosition == dynamicID && x.position.name().equals(position)).findFirst().orElse(null);
+		KFCard card = deck.stream().filter(x -> x.dynamicIndexPosition == dynamicID && x.position == solveCruciblePosition(position)).findFirst().orElse(null);
 		if(card == null) 
 		{
 			System.out.println("Unable to get card with dynamic id " + dynamicID + " while updating with it");
@@ -421,7 +421,7 @@ public class Player {
 			var jsonObj = (JSONObject)o;
 			var card = this.getUpgradeFromaNameAndUuid(jsonObj.getString("name"), jsonObj.getString("uuid"), isOpponent);
 			if(card == null) continue;
-			card.position = Utils.resolveFieldPosition(jsonObj.getString("location"));
+			card.position = resolveFieldPosition(jsonObj.getString("location"));
 			card.isEnemy = isOpponent;
 			card.exhausted = jsonObj.getBoolean("exhausted");
 			card.ready = !card.exhausted;
@@ -442,7 +442,7 @@ public class Player {
 
 	}
 	public JSONArray clickButton(String name) {
-		var list = Utils.jsonArrayToList(buttons);
+		var list = jsonArrayToList(buttons);
 		var match = list.stream().filter(x -> x.toLowerCase().contains(name)).findFirst().orElse(null);
 		if(match == null)
 			return null;
@@ -573,17 +573,17 @@ public class Player {
 	}
 
 	public int evaluateHouse(JSONArray commands) {
-		Map<Utils.House, Integer> map = new HashMap<Utils.House, Integer>();
-		Map<Utils.House, Double> valueMap = new HashMap<Utils.House, Double>();
+		Map<House, Integer> map = new HashMap<House, Integer>();
+		Map<House, Double> valueMap = new HashMap<House, Double>();
 		for (Object houseIndex : commands) {
 			var jsonLine = (JSONObject) houseIndex;
 			var house = jsonLine.getString("text");
 			var index = jsonLine.getInt("arg");
-			map.put(Utils.resolveHouse(house), index);
-			valueMap.put(Utils.resolveHouse(house), 0.0);
+			map.put(resolveHouse(house), index);
+			valueMap.put(resolveHouse(house), 0.0);
 		}
 		for (var card : deck) {
-			if (card.position != Utils.FieldPosition.playarea && card.position != Utils.FieldPosition.hand) {
+			if (card.position != FieldPosition.playarea && card.position != FieldPosition.hand) {
 				continue;
 			}
 			valueMap.replace(card.house, valueMap.get(card.house) + card.evaluateUtility(""));
@@ -637,7 +637,7 @@ public class Player {
 		for(var obj: buttons) {
 			var line = (JSONObject)obj;
 			var text = line.getString("text");
-			if(Utils.resolveHouse(text).equals(activeHouse))
+			if(resolveHouse(text).equals(activeHouse))
 				return this.clickButton(index);
 			index++;
 		}
@@ -815,13 +815,13 @@ public class Player {
 				mulligan = true;
 		}
 	}
-	public Utils.House getHouse(JSONObject obj) {
+	public House getHouse(JSONObject obj) {
 		try {
 			if(obj.has("activeHouse") && (obj.get("activeHouse") != JSONObject.NULL)) {
 				activeHouse =  String.class.isInstance(obj.get("activeHouse")) ? 
-						Utils.resolveHouse(obj.getString("activeHouse")) : 
+						resolveHouse(obj.getString("activeHouse")) : 
 						(JSONArray.class.isInstance(obj.get("activeHouse")) ? 
-							Utils.resolveHouse(obj.getJSONArray("activeHouse").getString(obj.getJSONArray("activeHouse").length() -1)) :
+							resolveHouse(obj.getJSONArray("activeHouse").getString(obj.getJSONArray("activeHouse").length() -1)) :
 							null);
 			}
 			return activeHouse;	

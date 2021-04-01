@@ -1,10 +1,9 @@
 package keyforge;
 
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public class KFAction extends KFCard {
-	public KFAction(String name, Utils.House house)
+	public KFAction(String name, House house)
 	{
 		super(name, house);
 	}

@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import keyforge.*;
 
@@ -70,6 +71,46 @@ public class Utils {
 	}
 	public static Type resolveType(String effect) {
 		return Type.valueOf(effect);
+	}
+	
+	
+	public static <T> T coalesce(T value, T defaultValue) {
+		return value != null ? value : defaultValue;
+	}
+	public static <T> T getValueFromClassAndJSON(JSONObject obj, Class<?> objClass, String key) {
+		if(!obj.has(key))
+			return null;
+		try {
+			if(objClass == (obj.get(key).getClass())) {
+				return (T)obj.get(key);
+			} else if(obj.get(key).getClass() == JSONArray.class){
+				var array = obj.getJSONArray(key);
+				var last = array.get(array.length() -1);
+				if(last.getClass() == objClass) {
+					return (T)last;
+				}
+			} else {
+				System.out.println("is not an instance of " + objClass);
+			}
+				
+		} catch(Exception e) {
+			System.out.println("Problem with getValueFromClassAndJSON for class " + objClass);
+			System.out.println(e.getMessage());
+		}
+		return null;
+	}
+	public static FieldPosition solveCruciblePosition(String cruciblePos) {
+		switch(cruciblePos) {
+			case "cardsInPlay":
+				return FieldPosition.playarea;
+			case "hand":
+			case "discard":
+			case "deck":
+				return resolveFieldPosition(cruciblePos);
+			default:
+				System.out.println("case not implemented yet: " );
+				return resolveFieldPosition(cruciblePos);
+		}
 	}
 	public static FieldPosition resolveFieldPosition(String fieldPos){
 		fieldPos = fieldPos.replaceAll("\\s+", "");

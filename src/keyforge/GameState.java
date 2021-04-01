@@ -4,8 +4,7 @@ import java.util.*;
 import java.util.stream.*;
 
 import org.json.*;
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public class GameState {
 	private int amber;
@@ -91,7 +90,7 @@ public class GameState {
 				.filter(x -> x != null  && x.position != null &&
 				(x.position.equals(FieldPosition.playarea) || x.position.equals(FieldPosition.hand) || x.position.equals(FieldPosition.discard)))
 				.map(kfCard -> {
-					return Utils.cloneCard(kfCard);
+					return cloneCard(kfCard);
 				}).collect(Collectors.toList());
 		toFight = cardsInPlay.parallelStream()
 				.filter(x -> x.position.equals(FieldPosition.playarea) && x.isEnemy && KFCreature.class.isInstance(x))
@@ -109,12 +108,12 @@ public class GameState {
 		allMatches = PlannedMove.applyEffectFilter(abil.target, cardsInPlay);
 		card.assessEffect(allMatches);
 	}
-	public Utils.House selectHouse() {
+	public House selectHouse() {
 		List<KFCard> cardsToPlay = 
 				cardsInPlay.parallelStream()
 					.filter(x -> x != null && !x.isEnemy && (x.position.equals(FieldPosition.playarea) || x.position.equals(FieldPosition.hand)))
 				.collect(Collectors.toList());
-		Map<Utils.House, Double> rating = new HashMap<>();
+		Map<House, Double> rating = new HashMap<>();
 		for(var card : cardsToPlay) {
 			this.assessCard(card);
 			var rate = rateCard(card);
@@ -127,9 +126,9 @@ public class GameState {
 			}
 		}
 		for(var house : rating.keySet()) {
-			var modHand = 1.8 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(Utils.FieldPosition.hand)).count();
-			var modDeck = 0.2 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(Utils.FieldPosition.deck)).count();
-			var modPlayarea = 0.43 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(Utils.FieldPosition.playarea) && x.ready).count();
+			var modHand = 1.8 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.hand)).count();
+			var modDeck = 0.2 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.deck)).count();
+			var modPlayarea = 0.43 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.playarea) && x.ready).count();
 			var mod = rating.get(house) + modDeck + modHand + modPlayarea;
 			rating.replace(house, mod);
 		}
@@ -179,7 +178,7 @@ public class GameState {
 	}
 	private double evaluatePlayEffect(KFCard card) {
 		var abil = card.abilities.parallelStream()
-				.filter(x -> x.effectType.equals(Utils.resolveType("play")))
+				.filter(x -> x.effectType.equals(resolveType("play")))
 				.findFirst()
 				.orElse(null);
 		if(abil == null)
@@ -274,7 +273,7 @@ public class GameState {
 
 	private double evaluateReapEffect(KFCreature card) {
 		var abil  = card.abilities.parallelStream()
-			.filter(x -> x.effectType.equals(Utils.resolveType("reap")))
+			.filter(x -> x.effectType.equals(resolveType("reap")))
 			.findFirst()
 			.orElse(null);
 		if(abil == null)
@@ -350,7 +349,7 @@ public class GameState {
 	private double evaluateDestroyedEffect(KFCreature card) {
 		KFAbility abil = card.abilities.parallelStream()
 			.filter(x -> 
-				(x.effectType.equals(Utils.resolveType("destroyed"))))
+				(x.effectType.equals(resolveType("destroyed"))))
 			.findFirst()
 			.orElse(null);
 		if(abil == null)
@@ -369,7 +368,7 @@ public class GameState {
 	private double evaluateFightEffect(KFCreature card) {
 		KFAbility abil = card.abilities.parallelStream()
 			.filter(x -> 
-				(x.effectType.equals(Utils.resolveType("fight"))))
+				(x.effectType.equals(resolveType("fight"))))
 			.findFirst()
 			.orElse(null);
 		if(abil == null)

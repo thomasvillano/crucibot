@@ -2,14 +2,12 @@ package keyforge;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public class KFCreature extends KFCard {
 	protected int lifePoints;
@@ -24,7 +22,7 @@ public class KFCreature extends KFCard {
 	protected boolean ward;
 	private int hasCaptured;
 	
-	public KFCreature(String name, Utils.House house) {
+	public KFCreature(String name, House house) {
 		super(name, house);
 		types = new ArrayList<String>();
 	}
@@ -90,12 +88,13 @@ public class KFCreature extends KFCard {
 
 	public void updateByJSON(JSONObject obj, boolean isEnemy) {
 		super.updateByJSON(obj, isEnemy);
-		taunt    = obj.has("taunt") ? obj.getBoolean("taunt") : taunt;
-		stunned  = obj.has("stunned") ? obj.getBoolean("stunned") : stunned;
-		ward     = obj.has("wardBroken") ? obj.getBoolean("wardBroken") : ward;
-		var tokens     = (JSONObject) obj.get("tokens");
-		damage   = tokens.has("damage") ? tokens.getInt("damage") : 0;
-		setCaptured(tokens.has("amber") ? tokens.getInt("amber") : 0);
+		taunt    = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "taunt"), taunt);
+		stunned  = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "stunned"), stunned);
+		ward     = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "ward"), ward);
+		damage   = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "damage"), damage);
+		JSONObject tokens = getValueFromClassAndJSON(obj, JSONObject.class, "tokens");
+		if (tokens != null)
+			hasCaptured = (tokens.has("amber") ? tokens.getInt("amber") : 0);
 		
 	}
 	
@@ -108,8 +107,8 @@ public class KFCreature extends KFCard {
 		exhausted = false;
 		ready = false;
 		ward = false;
-		position = Utils.FieldPosition.discard;
-		upgrades.stream().forEach(x -> x.position = Utils.FieldPosition.discard);
+		position = FieldPosition.discard;
+		upgrades.stream().forEach(x -> x.position = FieldPosition.discard);
 		if(leftNeighbor != null) leftNeighbor.rightNeighbor = rightNeighbor;
 		if(rightNeighbor != null) rightNeighbor.leftNeighbor = leftNeighbor;
 		leftNeighbor = null;
@@ -124,11 +123,11 @@ public class KFCreature extends KFCard {
 		this.exhausted = false;
 		this.ready = false;
 		this.ward = false;
-		upgrades.stream().forEach(x -> x.position = Utils.FieldPosition.discard);
-		this.position = Utils.FieldPosition.hand;
+		upgrades.stream().forEach(x -> x.position = FieldPosition.discard);
+		this.position = FieldPosition.hand;
 	}
 	public void updateAfterPlay() {
-		this.position = Utils.FieldPosition.playarea;
+		this.position = FieldPosition.playarea;
 		var cond = this.abilities.stream().anyMatch(x -> x.isConst() && x.getName() != null && x.getName().equals("straight-ready"));
 		this.exhausted = !cond;
 		this.ready = cond;

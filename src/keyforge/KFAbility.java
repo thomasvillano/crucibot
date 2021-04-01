@@ -2,11 +2,10 @@ package keyforge;
 
 import java.util.ArrayList;
 import java.util.List;
-import gameUtils.Utils;
-import gameUtils.Utils.Type;
+import static gameUtils.Utils.*;
 
 public class KFAbility {
-	protected Utils.Type effectType;
+	protected Type effectType;
 	protected keyforge.Effect effect;
 	protected keyforge.Action action;
 	protected Target target;
@@ -19,7 +18,7 @@ public class KFAbility {
 	private boolean spreadable;
 	
 	public KFAbility(String name) {
-		effectType = Utils.resolveType(name);
+		effectType = resolveType(name);
 	}
 	public KFAbility(KFCard owner, String[] ability) {
 		this(ability);
@@ -31,7 +30,7 @@ public class KFAbility {
 		effect = new Effect();
 		action = new keyforge.Action();
 		if(ability[1].contains("[")) {
-			String[] subAbil = {"",Utils.getFilteredAttribute(ability[1])};
+			String[] subAbil = {"",getFilteredAttribute(ability[1])};
 			ability[1] = ability[1].replaceAll("\\[(.*)\\]", "skip");
 			abilities_to_gain.add(new KFAbility(subAbil));
 		}
@@ -39,14 +38,14 @@ public class KFAbility {
 		for(var attr : abil_attributes)
 		{
 			var subAttr = attr.split(":");
-			var property = Utils.getFilteredWord(subAttr[0]).toLowerCase();
-			var propValue = Utils.getFilteredWord(subAttr[1]).toLowerCase();
+			var property = getFilteredWord(subAttr[0]).toLowerCase();
+			var propValue = getFilteredWord(subAttr[1]).toLowerCase();
 			if(propValue.equals("skip")) continue;
 			else if(property.startsWith("target")) assignTargetValues(target,property, propValue);
 			else if(property.startsWith("effect")) effect.assignEffectValues(property, propValue);
 			else if (property.startsWith("action")) action.assignActionValues(property, propValue);
 			else if(property.equals("name")) {
-				effectType = Utils.resolveType(propValue);
+				effectType = resolveType(propValue);
 				if(effectType.equals(Type.constant)) constant = true;
 			}
 			else if(property.equals("constant_name")) name = propValue;
@@ -92,7 +91,7 @@ public class KFAbility {
 			target.tName = tValues;
 			break;
 		case "target_position":
-			target.tPosition = Utils.resolveFieldPosition(tValues);
+			target.tPosition = resolveFieldPosition(tValues);
 			break;
 		case "target_condition":
 			target.evaluateTargetCondition(tValues);

@@ -1,10 +1,9 @@
 package keyforge;
 
-import gameUtils.Utils;
-import gameUtils.Utils.FieldPosition;
+import static gameUtils.Utils.*;
 
 public class KFArtifact extends KFCard {
-	public KFArtifact(String name, Utils.House house)
+	public KFArtifact(String name, House house)
 	{
 		super(name, house);
 	}

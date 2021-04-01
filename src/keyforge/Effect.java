@@ -1,7 +1,6 @@
 package keyforge;
 
-import gameUtils.Utils;
-import gameUtils.Utils.*;
+import static gameUtils.Utils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,7 +52,7 @@ public class Effect {
 			evaluateEffectCondition(propValue);
 			break;
 		case "effect_position":
-			position = Utils.resolveFieldPosition(propValue);
+			position = resolveFieldPosition(propValue);
 			break;
 		default:
 			System.out.println("Not recognizing any value of " + property + " with " + propValue);
@@ -61,7 +60,7 @@ public class Effect {
 		}
 	}
 
-	public void assessEffect(KFCard parentCard, Utils.Type type, List<KFCard> matches) {
+	public void assessEffect(KFCard parentCard, Type type, List<KFCard> matches) {
 		this.realMatches = new ArrayList<KFCard>();
 		this.target = parentCard.abilities.stream()
 				.filter(x -> x.effectType.equals(type))
@@ -101,7 +100,7 @@ public class Effect {
 				break;
 			}
 		}
-		realMatches = realMatches.stream().filter(Utils.distinctByKey(KFCard::getUuid)).collect(Collectors.toList());
+		realMatches = realMatches.stream().filter(distinctByKey(KFCard::getUuid)).collect(Collectors.toList());
 	}
 	public void evaluateEffectCondition(String propValues) {
 		try {
