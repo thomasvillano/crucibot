@@ -7,7 +7,6 @@ import keyforge.KFArtifact;
 import keyforge.KFCard;
 import keyforge.KFCreature;
 import keyforge.KFUpgrade;
-import keyforge.PlannedMove;
 
 public class DeckReader {
 	private static List<KFCard> cards;
@@ -157,7 +156,7 @@ public class DeckReader {
 					maverik = splitted[1];
 				}
 				var sCard = card;
-				KFCard kfCard = cards.parallelStream()
+				KFCard kfCard = cards.stream()
 						.filter(x -> x.getName().toLowerCase().equals(sCard.toLowerCase()))
 						.findAny()
 						.orElse(null);

@@ -86,17 +86,17 @@ public class GameState {
 	{
 		cardsInPlay = PlannedMove.cloneCards(botPlayer.deck);
 		cardsInPlay.addAll(botPlayer.opponentDeck);
-		cardsInPlay = cardsInPlay.parallelStream()
+		cardsInPlay = cardsInPlay.stream()
 				.filter(x -> x != null  && x.position != null &&
 				(x.position.equals(FieldPosition.playarea) || x.position.equals(FieldPosition.hand) || x.position.equals(FieldPosition.discard)))
 				.map(kfCard -> {
 					return cloneCard(kfCard);
 				}).collect(Collectors.toList());
-		toFight = cardsInPlay.parallelStream()
+		toFight = cardsInPlay.stream()
 				.filter(x -> x.position.equals(FieldPosition.playarea) && x.isEnemy && KFCreature.class.isInstance(x))
 				.map(x -> (KFCreature)x)
 				.collect(Collectors.toList());
-		fightWith = cardsInPlay.parallelStream()
+		fightWith = cardsInPlay.stream()
 				.filter(x -> x.position.equals(FieldPosition.playarea) && !x.isEnemy && KFCreature.class.isInstance(x))
 				.map(x -> (KFCreature)x)
 				.collect(Collectors.toList());
@@ -110,7 +110,7 @@ public class GameState {
 	}
 	public House selectHouse() {
 		List<KFCard> cardsToPlay = 
-				cardsInPlay.parallelStream()
+				cardsInPlay.stream()
 					.filter(x -> x != null && !x.isEnemy && (x.position.equals(FieldPosition.playarea) || x.position.equals(FieldPosition.hand)))
 				.collect(Collectors.toList());
 		Map<House, Double> rating = new HashMap<>();
@@ -126,14 +126,14 @@ public class GameState {
 			}
 		}
 		for(var house : rating.keySet()) {
-			var modHand = 1.8 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.hand)).count();
-			var modDeck = 0.2 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.deck)).count();
-			var modPlayarea = 0.43 * botPlayer.deck.parallelStream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.playarea) && x.ready).count();
+			var modHand = 1.8 * botPlayer.deck.stream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.hand)).count();
+			var modDeck = 0.2 * botPlayer.deck.stream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.deck)).count();
+			var modPlayarea = 0.43 * botPlayer.deck.stream().filter(x -> x != null && x.house.equals(house) && x.position != null && x.position.equals(FieldPosition.playarea) && x.ready).count();
 			var mod = rating.get(house) + modDeck + modHand + modPlayarea;
 			rating.replace(house, mod);
 		}
 		try {
-			var key = rating.entrySet().parallelStream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			var key = rating.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
 			return key;
 		} catch(Exception e) {
 			System.out.print("error while evaluating houses: ");
@@ -177,7 +177,7 @@ public class GameState {
 		card.abilities.forEach(x -> this.assessCard(card, x));
 	}
 	private double evaluatePlayEffect(KFCard card) {
-		var abil = card.abilities.parallelStream()
+		var abil = card.abilities.stream()
 				.filter(x -> x.effectType.equals(resolveType("play")))
 				.findFirst()
 				.orElse(null);
@@ -188,10 +188,10 @@ public class GameState {
 	//TODO
 	private double ratingByAbil(KFAbility abil) {
 		double rate = 0;
-		if(abil.effect.realMatches.parallelStream().count() == 0) ; //TODO
-		var friendMatches = abil.effect.realMatches.parallelStream()
+		if(abil.effect.realMatches.stream().count() == 0) ; //TODO
+		var friendMatches = abil.effect.realMatches.stream()
 				.filter(x -> !x.isEnemy).count();
-		var enemyMatches = abil.effect.realMatches.parallelStream()
+		var enemyMatches = abil.effect.realMatches.stream()
 				.filter(x -> x.isEnemy).count();
 		var tmp = ratingByAbil(abil, friendMatches, enemyMatches);
 		rate = (rate == 0 || tmp > rate ) ? tmp : rate;
@@ -221,7 +221,7 @@ public class GameState {
 				modifier = -1 *  ((friendMatches > abil.effect.target.tValue) ? abil.effect.target.tValue : friendMatches);
 			}
 			if(abil.effect.conds.contains("each_house")) {
-				var mathcesPerHouse = abil.effect.realMatches.parallelStream().collect(Collectors.groupingBy(x -> x.house));	
+				var mathcesPerHouse = abil.effect.realMatches.stream().collect(Collectors.groupingBy(x -> x.house));	
 			}
 			break;
 		case "exhaust":
@@ -231,19 +231,19 @@ public class GameState {
 			break;
 		case "return_hand":
 			modifier = 1.1;
-			modifier = abil.effect.realMatches.parallelStream().filter(x -> x.isEnemy).count() * 1.1;
+			modifier = abil.effect.realMatches.stream().filter(x -> x.isEnemy).count() * 1.1;
 			break;		
 		case "ready":
 			modifier = 1.5;
-			modifier = (abil.effect.realMatches.parallelStream().filter(x -> x.isEnemy).count() > 0) ? modifier * -1 : modifier;
+			modifier = (abil.effect.realMatches.stream().filter(x -> x.isEnemy).count() > 0) ? modifier * -1 : modifier;
 			break;
 		case "capture":
 			modifier = 1.5 * (abil.effect.conds.contains("enemy") ? -1 : 1);
 			break;
 		case "ready_fight":
 			modifier = 1.4 * 
-				((abil.effect.realMatches.parallelStream().anyMatch(x -> KFCreature.class.isInstance(x) && !x.isEnemy)) ? 1.1 : 0) *
-				((abil.effect.realMatches.parallelStream().anyMatch(x -> KFCreature.class.isInstance(x) && x.isEnemy)) ? 1.1 : 0);
+				((abil.effect.realMatches.stream().anyMatch(x -> KFCreature.class.isInstance(x) && !x.isEnemy)) ? 1.1 : 0) *
+				((abil.effect.realMatches.stream().anyMatch(x -> KFCreature.class.isInstance(x) && x.isEnemy)) ? 1.1 : 0);
 			break;
 		default:
 			System.out.println("This has to be implemented: " + abil.effect.getName());
@@ -272,7 +272,7 @@ public class GameState {
 	}
 
 	private double evaluateReapEffect(KFCreature card) {
-		var abil  = card.abilities.parallelStream()
+		var abil  = card.abilities.stream()
 			.filter(x -> x.effectType.equals(resolveType("reap")))
 			.findFirst()
 			.orElse(null);
@@ -287,12 +287,12 @@ public class GameState {
 			break;
 		case "return_hand":
 			if(abil.target.conds.contains("friend")) {
-				rating = abil.effect.realMatches.parallelStream().count();
+				rating = abil.effect.realMatches.stream().count();
 				modifier = 0.6;
 			}
 			break;
 		case "play":
-			rating = (abil.effect.realMatches.size() > abil.effect.target.tValue) ? abil.effect.target.tValue : abil.effect.realMatches.parallelStream().count();
+			rating = (abil.effect.realMatches.size() > abil.effect.target.tValue) ? abil.effect.target.tValue : abil.effect.realMatches.stream().count();
 			modifier = 1.2;
 			break;
 		case "capture":
@@ -308,8 +308,8 @@ public class GameState {
 			modifier = 1.8;
 			break;
 		case "gain_ability":
-			rating = abil.effect.realMatches.parallelStream().filter(x -> x.abilities.size() == 0).count() * 1.2;
-			rating += abil.effect.realMatches.parallelStream().filter(x -> x.abilities.size() > 0).count() * 0.7;
+			rating = abil.effect.realMatches.stream().filter(x -> x.abilities.size() == 0).count() * 1.2;
+			rating += abil.effect.realMatches.stream().filter(x -> x.abilities.size() > 0).count() * 0.7;
 			modifier = 1.1;
 			break;
 		case "ready":
@@ -328,7 +328,7 @@ public class GameState {
 			return 0;
 			
 		//cards weaker than mine
-		var weakerCards = toFight.parallelStream()
+		var weakerCards = toFight.stream()
 				.filter(x -> card.getAttack() > x.lifePoints && card.lifePoints > x.getAttack())
 				.count();
 		if(weakerCards > 0) {
@@ -336,7 +336,7 @@ public class GameState {
 			rate += evaluateFightEffect(card);
 		}
 		//cards stronger than mine
-		var strongerCards = toFight.parallelStream()
+		var strongerCards = toFight.stream()
 				.filter(x -> card.getAttack() <= x.lifePoints && card.lifePoints <= x.getAttack())
 				.count();
 		if(strongerCards > 0) {
@@ -347,7 +347,7 @@ public class GameState {
 		return rate;
 	}
 	private double evaluateDestroyedEffect(KFCreature card) {
-		KFAbility abil = card.abilities.parallelStream()
+		KFAbility abil = card.abilities.stream()
 			.filter(x -> 
 				(x.effectType.equals(resolveType("destroyed"))))
 			.findFirst()
@@ -366,7 +366,7 @@ public class GameState {
 	}
 
 	private double evaluateFightEffect(KFCreature card) {
-		KFAbility abil = card.abilities.parallelStream()
+		KFAbility abil = card.abilities.stream()
 			.filter(x -> 
 				(x.effectType.equals(resolveType("fight"))))
 			.findFirst()
@@ -395,13 +395,13 @@ public class GameState {
 			case "play":
 				rate = 1;
 				modifier = 1.5 * (abil.effect.target.tValue > abil.effect
-						.realMatches.parallelStream()
-						.filter(x -> !x.isEnemy).count() ? abil.effect.realMatches.parallelStream().filter(x -> !x.isEnemy).count() : abil.effect.target.tValue);
+						.realMatches.stream()
+						.filter(x -> !x.isEnemy).count() ? abil.effect.realMatches.stream().filter(x -> !x.isEnemy).count() : abil.effect.target.tValue);
 				break;
 			case "capture":
 				rate = 1;
 				modifier = 1.5 * (abil.effect.target.tValue > abil.effect
-						.realMatches.parallelStream()
+						.realMatches.stream()
 						.filter(x -> !x.isEnemy).count() ? 1 : 1);
 				break;
 			default:

@@ -1,6 +1,5 @@
 package gameInterface;
 
-import java.io.PrintWriter;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;

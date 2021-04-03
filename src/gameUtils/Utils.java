@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
@@ -77,20 +78,24 @@ public class Utils {
 	public static <T> T coalesce(T value, T defaultValue) {
 		return value != null ? value : defaultValue;
 	}
-	public static <T> T getValueFromClassAndJSON(JSONObject obj, Class<?> objClass, String key) {
+	public static <T> T getValueFromClassAndJSON(JSONObject obj, Class<T> objClass, String key) {
 		if(!obj.has(key))
 			return null;
+		if(key.equals("promptTitle") && JSONObject.class.isInstance(obj.get(key)) && objClass == String.class) {
+				return objClass.cast(composeCrucibleString(obj.getJSONObject(key)));
+		}
 		try {
 			if(objClass == (obj.get(key).getClass())) {
-				return (T)obj.get(key);
-			} else if(obj.get(key).getClass() == JSONArray.class){
+				return objClass.cast(obj.get(key));
+			} else if(obj.get(key).getClass() == JSONArray.class) {
 				var array = obj.getJSONArray(key);
 				var last = array.get(array.length() -1);
 				if(last.getClass() == objClass) {
-					return (T)last;
+					return objClass.cast(last);
 				}
 			} else {
-				System.out.println("is not an instance of " + objClass);
+				
+				System.out.println(key + " is not an instance of " + objClass);
 			}
 				
 		} catch(Exception e) {
@@ -98,6 +103,34 @@ public class Utils {
 			System.out.println(e.getMessage());
 		}
 		return null;
+	}
+	
+	public static String composeCrucibleString(JSONObject obj) {
+
+		var text = coalesce(getValueFromClassAndJSON(obj, String.class, "text"),null);
+		var values = coalesce(getValueFromClassAndJSON(obj, JSONObject.class, "values"), null); 
+		
+		if(text == null || values == null)
+			return null;
+		
+		var finalText = new String(text);
+		
+		Pattern p = Pattern.compile("(?:\\{\\{)(\\w+)(?:\\}\\})");
+		Matcher m = p.matcher(text);
+		while(m.find()) {
+			var value_key = m.group(1);
+			if(!values.has(value_key)) {
+				System.out.println("object " + values + " has no key " + value_key);
+				continue;
+			}
+			var value = values.get(value_key);
+			try {
+				finalText = finalText.replaceAll("\\{\\{" + m.group(1) + "\\}\\}", value.toString());
+			} catch(Exception e) {
+				System.out.println("unable to replace " + value);
+			}
+		}
+		return finalText;
 	}
 	public static FieldPosition solveCruciblePosition(String cruciblePos) {
 		switch(cruciblePos) {
@@ -114,7 +147,11 @@ public class Utils {
 	}
 	public static FieldPosition resolveFieldPosition(String fieldPos){
 		fieldPos = fieldPos.replaceAll("\\s+", "");
-		return FieldPosition.valueOf(fieldPos.toLowerCase());
+		try {
+			return FieldPosition.valueOf(fieldPos.toLowerCase());
+		} catch(Exception e) {
+			return solveCruciblePosition(fieldPos);
+		}
 	}
 	public static GamePhase resolveGamePhase(String gamePhase) {
 		return GamePhase.valueOf(gamePhase);

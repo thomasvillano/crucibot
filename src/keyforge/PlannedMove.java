@@ -76,7 +76,7 @@ public class PlannedMove {
 		friendsDestroyed = 0;
 	}
 	public int enemyPotentialAmberNextTurn() {
-		return (int)possibleTargets.parallelStream().filter(x -> x != null && x.isEnemy && x.position != null && x.position.equals(FieldPosition.playarea)
+		return (int)possibleTargets.stream().filter(x -> x != null && x.isEnemy && x.position != null && x.position.equals(FieldPosition.playarea)
 				&& x.ready && !x.exhausted).count();
 	}
 	public int getEnemyDistanceToGoal() {
@@ -119,14 +119,14 @@ public class PlannedMove {
 		}
 	}
 	private void updatePossibleMovesRef() {
-		possibleMoves = initPool.parallelStream()
-			.filter(x -> previousMove.possibleMoves.parallelStream()
+		possibleMoves = initPool.stream()
+			.filter(x -> previousMove.possibleMoves.stream()
 					.anyMatch((y -> y.equals(x))))
 			.collect(Collectors.toList());
 	}
 	private void updatePossibleTargetsRef() {
-		possibleTargets = initPool.parallelStream()
-				.filter(x -> previousMove.possibleTargets.parallelStream()
+		possibleTargets = initPool.stream()
+				.filter(x -> previousMove.possibleTargets.stream()
 						.anyMatch((y -> y.equals(x))))
 				.collect(Collectors.toList()); 
 	}
@@ -141,19 +141,19 @@ public class PlannedMove {
 	}
 
 	public int getCardsInDeck(House house) {
-		return (int)botPlayer.deck.parallelStream().filter(x -> x.position != null && x.position.equals(FieldPosition.deck) && x.house == house).count();
+		return (int)botPlayer.deck.stream().filter(x -> x.position != null && x.position.equals(FieldPosition.deck) && x.house == house).count();
 	}
 
 	private void setCardsInHand() {
-		cardsInHand = (int)botPlayer.deck.parallelStream().filter(x -> x.position != null && x.position.equals(FieldPosition.hand)).count();
+		cardsInHand = (int)botPlayer.deck.stream().filter(x -> x.position != null && x.position.equals(FieldPosition.hand)).count();
 		//eval the one below
-		enemyCardsInHand = (int)botPlayer.opponentDeck.parallelStream().filter(x -> x.position != null && x.position.equals(FieldPosition.hand)).count();
+		enemyCardsInHand = (int)botPlayer.opponentDeck.stream().filter(x -> x.position != null && x.position.equals(FieldPosition.hand)).count();
 	}
 	private int getCardsToDraw() {
 		return 6 - cardsInHand;
 	}
 	public void initTargets() {
-		possibleTargets = initPool.parallelStream()
+		possibleTargets = initPool.stream()
 				.filter(x -> x != null && x.position != null
 				&& (x.position.equals(FieldPosition.playarea)
 						|| x.position.equals(FieldPosition.discard)
@@ -173,10 +173,10 @@ public class PlannedMove {
 		setCardsInHand();
 	}
 	private void initPool() {
-		var foo = botPlayer.deck.parallelStream()
+		var foo = botPlayer.deck.stream()
 				.filter(x -> x.position != null && !x.position.equals(FieldPosition.deck))
 				.collect(Collectors.toList());
-		foo.addAll(botPlayer.opponentDeck.parallelStream()
+		foo.addAll(botPlayer.opponentDeck.stream()
 				.filter(x -> x.position != null && !x.position.equals(FieldPosition.deck))
 				.collect(Collectors.toList()));
 		initPool = cloneCards(foo);
@@ -185,7 +185,7 @@ public class PlannedMove {
 	 * First evaluation
 	 */
 	private void initCards() {
-		possibleMoves = initPool.parallelStream()
+		possibleMoves = initPool.stream()
 				.filter(x -> (chosenHouse == null || x.house.equals(chosenHouse)) 
 				&& x != null
 				&& x.position != null 
@@ -196,13 +196,13 @@ public class PlannedMove {
 						|| x.position.equals(FieldPosition.archives)
 						|| x.position.equals(FieldPosition.discard)))
 				.collect(Collectors.toList());
-		possibleMoves.addAll(initPool.parallelStream()
+		possibleMoves.addAll(initPool.stream()
 				.filter(x -> x != null 
 					&& x.isEnemy
 					&& x.position != null
 					&& x.isControlled() == true)
 				.collect(Collectors.toList()));
-		possibleMoves.addAll(initPool.parallelStream()
+		possibleMoves.addAll(initPool.stream()
 				.filter(x -> x != null
 						&& x.position != null 
 						&& !x.isEnemy
@@ -212,7 +212,7 @@ public class PlannedMove {
 				.collect(Collectors.toList()));
 	}
 	public void addPossibleCards(List<KFCard> cards, boolean isOpponent) {
-		possibleMoves = cards.parallelStream()
+		possibleMoves = cards.stream()
 				.filter(x -> x != null && 
 				x.position != null &&
 				(x.position.equals(FieldPosition.hand) || 
@@ -267,7 +267,7 @@ public class PlannedMove {
 		var creature = (KFCreature) card;
 		if (!creature.position.equals(FieldPosition.playarea) || creature.exhausted)
 			return null;
-		var enemies = possibleTargets.parallelStream()
+		var enemies = possibleTargets.stream()
 				.filter(x -> KFCreature.class.isInstance(x) && x.isEnemy && x.position.equals(FieldPosition.playarea)).collect(Collectors.toList());
 		if (enemies == null || enemies.isEmpty())
 			return null;
@@ -307,7 +307,7 @@ public class PlannedMove {
 		if (!KFCreature.class.isInstance(enemy))
 			return null;
 		var pm = new PlannedMove(this);
-		var pmEnemy = pm.possibleTargets.parallelStream().filter(x -> x.equals(enemy)).findFirst().orElse(null);
+		var pmEnemy = pm.possibleTargets.stream().filter(x -> x.equals(enemy)).findFirst().orElse(null);
 		pm.move = "fight";
 		var pmCreature = (KFCreature)pm.selectCard(card);
 		var pmEnemyCreature = (KFCreature)pmEnemy;
@@ -366,7 +366,7 @@ public class PlannedMove {
 	 * @return
 	 */
 	public PlannedMove addUpgradePlayMove(KFCard card) {
-		var cond = possibleTargets.parallelStream().filter(
+		var cond = possibleTargets.stream().filter(
 				x -> KFCreature.class.isInstance(x) && !x.isEnemy && x.position.equals(FieldPosition.playarea))
 				.collect(Collectors.toList());
 		if (cond == null || cond.isEmpty())
@@ -412,7 +412,7 @@ public class PlannedMove {
 	private PlannedMove evaluateCreaturePosition(KFCard card) {
 		var creature = (KFCreature) card;
 		var friendField = possibleTargets
-				.parallelStream().filter(x -> x != null && KFCreature.class.isInstance(x) && !x.isEnemy
+				.stream().filter(x -> x != null && KFCreature.class.isInstance(x) && !x.isEnemy
 						&& x.position != null && x.position.equals(FieldPosition.playarea))
 				.collect(Collectors.toList());
 		if (friendField.isEmpty()) {
@@ -461,7 +461,7 @@ public class PlannedMove {
 		pm.flank = "right";
 		var creature_selected = (KFCreature)pm.selectCard(card);
 		pm.potentialAmber += 1;
-		var pmFriend = (KFCreature)pm.possibleTargets.parallelStream()
+		var pmFriend = (KFCreature)pm.possibleTargets.stream()
 				.filter(x -> x.equals(friend) && x.rightNeighbor == null)
 				.findFirst().orElse(null);
 		creature_selected.updateAfterPlay(pmFriend, pm.flank);
@@ -476,7 +476,7 @@ public class PlannedMove {
 		pm.flank = "left";
 		var creature_selected = (KFCreature)pm.selectCard(card);
 		pm.potentialAmber += 1;
-		var pmFriend = (KFCreature)pm.possibleTargets.parallelStream()
+		var pmFriend = (KFCreature)pm.possibleTargets.stream()
 				.filter(x -> x.equals(friend) && x.leftNeighbor == null)
 				.findFirst().orElse(null);
 		creature_selected.updateAfterPlay(pmFriend, pm.flank);
@@ -490,7 +490,7 @@ public class PlannedMove {
 		pm.flank = "deploy left";
 		pm.potentialAmber += 1;
 		var selected_creature = (KFCreature)pm.selectCard(card);
-		var pmFriend = (KFCreature)pm.possibleTargets.parallelStream()
+		var pmFriend = (KFCreature)pm.possibleTargets.stream()
 				.filter(x -> x.equals(friend))
 				.findFirst().orElse(null);
 		selected_creature.updateAfterPlay((KFCreature)pmFriend.leftNeighbor, pmFriend);
@@ -505,7 +505,7 @@ public class PlannedMove {
 		pm.flank = "deploy right";
 		var selected_creature = (KFCreature)pm.selectCard(card);
 		pm.potentialAmber += 1;
-		var pmFriend = (KFCreature)pm.possibleTargets.parallelStream()
+		var pmFriend = (KFCreature)pm.possibleTargets.stream()
 				.filter(x -> x.equals(friend))
 				.findFirst().orElse(null);
 		selected_creature.updateAfterPlay(pmFriend, (KFCreature)pmFriend.rightNeighbor);
@@ -546,7 +546,7 @@ public class PlannedMove {
 
 	public void addArchiveToHand() {
 		var pm = new PlannedMove(this);
-		var archiveCards = pm.possibleMoves.parallelStream()
+		var archiveCards = pm.possibleMoves.stream()
 				.filter(x -> x.position.equals(FieldPosition.archives)).collect(Collectors.toList());
 		for (var card : archiveCards) {
 			card.position = FieldPosition.hand;
@@ -559,7 +559,7 @@ public class PlannedMove {
 
 	public void doNotAddArchiveToHand() {
 		var pm = new PlannedMove(this);
-		var archiveCards = pm.possibleMoves.parallelStream()
+		var archiveCards = pm.possibleMoves.stream()
 				.filter(x -> x.position.equals(FieldPosition.archives)).collect(Collectors.toList());
 		for (var card : archiveCards) {
 			card.position = FieldPosition.discard;
@@ -575,7 +575,7 @@ public class PlannedMove {
 	 * @param map
 	 */
 	public void bestTargetSelection (KFAbility abil, Map<KFCard,Integer> map) {
-		map = map.entrySet().parallelStream()
+		map = map.entrySet().stream()
 				.sorted(Map.Entry.comparingByValue())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 		
@@ -584,7 +584,7 @@ public class PlannedMove {
 			targets = targets.subList(0, this.targetToAssign);
 		selectedTargets = targets;
 		if(abil.effect.conds.contains("each_house")) {
-			var val = (int) new ArrayList<KFCard>(map.keySet()).parallelStream()
+			var val = (int) new ArrayList<KFCard>(map.keySet()).stream()
 					.filter(distinctByKey(KFCard::getHouse))
 					.count();
 			var card = selectedTargets.get(0);
@@ -592,7 +592,7 @@ public class PlannedMove {
 				selectedTargets.add(card);
 		} 
 		if(abil.effect.conds.contains("each_friend")) {
-			var val = (int) new ArrayList<KFCard>(map.keySet()).parallelStream()
+			var val = (int) new ArrayList<KFCard>(map.keySet()).stream()
 					.filter(distinctByKey(KFCard::getFriendPlaying))
 					.count();
 			var card = selectedTargets.get(0);
@@ -617,13 +617,13 @@ public class PlannedMove {
 			targetToSelect = 1;
 			return;
 		case "exhaust":
-			selectedTargets.parallelStream().forEach(x -> x.ready = false);
+			selectedTargets.stream().forEach(x -> x.ready = false);
 			break;
 		case "damage":
 			if(selectedEffect.value == 0 && selectedEffect.sValue != null) {
 				switch(selectedEffect.sValue) {
 				case "doubled": 
-					selectedTargets.parallelStream()
+					selectedTargets.stream()
 					.filter(x -> KFCreature.class.isInstance(x))
 					.map(creature -> (KFCreature)creature)
 					.forEach(y -> y.updateAfterDamage(y.damage));
@@ -632,19 +632,19 @@ public class PlannedMove {
 				}
 				break;
 			}
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.filter(x -> KFCreature.class.isInstance(x))
 			.map(creature -> (KFCreature)creature)
 			.forEach(y -> y.updateAfterDamage(selectedEffect.value));
 			break;
 		case "capture":
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.filter(x -> KFCreature.class.isInstance(x))
 			.map(creature -> (KFCreature)creature)
 			.forEach(creature -> creature.setCaptured(selectedEffect.value));
 			break;
 		case "return_hand":
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.filter(x -> KFCreature.class.isInstance(x))
 			.map(creature -> (KFCreature)creature)
 			.forEach(creature -> creature.returnHand());
@@ -652,7 +652,7 @@ public class PlannedMove {
 		case "play":
 			break;
 		case "destroy":
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.filter(x -> KFCreature.class.isInstance(x))
 			.map(creature -> (KFCreature)creature)
 			.forEach(creature -> {
@@ -665,13 +665,13 @@ public class PlannedMove {
 			
 			break;
 		case "heal":
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.filter(x -> KFCreature.class.isInstance(x))
 			.map(creature -> (KFCreature)creature)
 			.forEach(creature -> creature.heal(selectedEffect.value));
 			break;
 		case "ready":
-			selectedTargets.parallelStream()
+			selectedTargets.stream()
 			.forEach(x -> x.ready());
 			break;
 		case "gain_amber":
@@ -688,14 +688,14 @@ public class PlannedMove {
 		var friend_cond = selectedEffect.realMatches.stream().anyMatch((x -> !x.isEnemy && KFCreature.class.isInstance(x)));
 		
 		if(!friend_cond) return;
-		friendTarget = (KFCreature)selectedEffect.realMatches.parallelStream()
+		friendTarget = (KFCreature)selectedEffect.realMatches.stream()
 			.filter(x -> !x.isEnemy && KFCreature.class.isInstance(x))
 			.max(Comparator.comparing(x -> ((KFCreature)x).getAttack()))
 			.get();
 		
 		var enemy_cond = selectedEffect.realMatches.stream().anyMatch((x -> x.isEnemy && KFCreature.class.isInstance(x)));
 		if(!enemy_cond) return;
-			enemyTarget = (KFCreature)possibleTargets.parallelStream()
+			enemyTarget = (KFCreature)possibleTargets.stream()
 				.filter(x -> x.isEnemy && KFCreature.class.isInstance(x))
 				.min(Comparator.comparing(x -> ((KFCreature)x).getLifePoints()))
 				.get();
@@ -723,7 +723,7 @@ public class PlannedMove {
 		
 	}
 	private void targetSelectionMove() {
-		var abil = selectedCard.abilities.parallelStream()
+		var abil = selectedCard.abilities.stream()
 				.filter(x -> x.effectType.equals(resolveType(move)))
 				.findFirst()
 				.orElse(null);
@@ -880,7 +880,7 @@ public class PlannedMove {
 	}
 	
 	private KFCard selectCard(KFCard card) {
-		this.selectedCard = possibleMoves.parallelStream().filter(x -> x.equals(card)).findFirst().orElse(null);
+		this.selectedCard = possibleMoves.stream().filter(x -> x.equals(card)).findFirst().orElse(null);
 		if(selectedCard.position.equals(FieldPosition.hand))
 				amberGained += selectedCard.amber;
 		return this.selectedCard;
@@ -895,8 +895,8 @@ public class PlannedMove {
 		if(baseCard.isEmpty) {
 			return null;
 		}
-		return toFilter.parallelStream()
-				.filter(baseCard.conditions.parallelStream().reduce(x -> true, Predicate::and))
+		return toFilter.stream()
+				.filter(baseCard.conditions.stream().reduce(x -> true, Predicate::and))
 				.collect(Collectors.toList());
 
 	}
@@ -919,7 +919,7 @@ public class PlannedMove {
 	public KFAbility selectAbil(String name) {
 		if (selectedCard == null || selectedCard.abilities == null || selectedCard.abilities.isEmpty())
 			return null;
-		var abil = selectedCard.abilities.parallelStream()
+		var abil = selectedCard.abilities.stream()
 				.filter(x -> x.effectType.name()
 				.equals(name))
 				.findFirst()
@@ -1147,7 +1147,7 @@ public class PlannedMove {
 		double rate = 0;
 		var toGoal = this.getDistanceToGoal();
 		var enemyToGoal = this.getEnemyDistanceToGoal();
-		potentialEnemyAmber = (int)initPool.parallelStream().filter(x -> x!= null && x.isEnemy && x.position != null && x.position.equals(FieldPosition.playarea) && x.ready).count();
+		potentialEnemyAmber = (int)initPool.stream().filter(x -> x!= null && x.isEnemy && x.position != null && x.position.equals(FieldPosition.playarea) && x.ready).count();
 		var destroyMod = (potentialEnemyAmber > enemyToGoal) ? 0.8 : 0.4;
 		rate = this.amberGained 
 				+ (0.5 * this.amberCaptured) 

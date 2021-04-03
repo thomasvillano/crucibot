@@ -1,8 +1,6 @@
 package keyforge;
 
-import gameUtils.*;
 import java.util.*;
-import java.util.function.Predicate;
 public class Action {
 	private String actionName;
 	private String action_move;

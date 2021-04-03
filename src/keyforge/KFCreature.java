@@ -86,12 +86,12 @@ public class KFCreature extends KFCard {
 		this.hasCaptured += capture;
 	}
 
-	public void updateByJSON(JSONObject obj, boolean isEnemy) {
-		super.updateByJSON(obj, isEnemy);
+	public void updateByJSON(JSONObject obj, boolean isEnemy, String pos) {
+		super.updateByJSON(obj, isEnemy, pos);
 		taunt    = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "taunt"), taunt);
 		stunned  = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "stunned"), stunned);
 		ward     = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "ward"), ward);
-		damage   = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "damage"), damage);
+		damage   = coalesce(getValueFromClassAndJSON(obj, Integer.class, "damage"), damage);
 		JSONObject tokens = getValueFromClassAndJSON(obj, JSONObject.class, "tokens");
 		if (tokens != null)
 			hasCaptured = (tokens.has("amber") ? tokens.getInt("amber") : 0);

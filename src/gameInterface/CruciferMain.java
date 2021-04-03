@@ -14,7 +14,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import gameInterface.*;
 import gameUtils.*;
 import keyforge.*;
 
@@ -97,10 +96,15 @@ public class CruciferMain {
 				decks.put(i, line.split(";")[1]);
 				i++;
 			}
+			br.close();
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			var cond = true;
 			int intChoice = 0;
-			if(true) return decks.get(intChoice);
+			if(true) 
+			{
+				keyboard.close();
+				return decks.get(intChoice);
+			}
 			do {
 				
 				var choice = keyboard.readLine();
@@ -116,6 +120,7 @@ public class CruciferMain {
 					System.out.println("Not a number!");
 				}
 			} while(cond);
+			keyboard.close();
 			return decks.get(intChoice);
 		} catch(FileNotFoundException e) {
 			System.out.println("Deck list file not found");

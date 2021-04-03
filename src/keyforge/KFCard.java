@@ -148,7 +148,7 @@ public abstract class KFCard {
 		else return null;
 	}
 	public List<KFAbility> getAbilities(String name) {
-		return abilities.parallelStream()
+		return abilities.stream()
 				.filter(x -> x != null && !x.isConst() && x.effectType != null && x.effectType.name().equals(name)).collect(Collectors.toList());
 		
 	}
@@ -158,10 +158,10 @@ public abstract class KFCard {
 		playable = false;
 	}
 	
-	public void updateByJSON(JSONObject obj, boolean isOpponent) { 
+	public void updateByJSON(JSONObject obj, boolean isOpponent, String pos) { 
 		isEnemy    = isOpponent;
 		playable   = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "canPlay"), playable);
-		position   = resolveFieldPosition(coalesce(getValueFromClassAndJSON(obj, String.class, "location"), position.name()));
+		position   = resolveFieldPosition(coalesce(getValueFromClassAndJSON(obj, String.class, "location"), pos));
 		exhausted  = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "exhausted"), exhausted);
 		ready      = !exhausted;
 		selectable = coalesce(getValueFromClassAndJSON(obj, Boolean.class, "selectable"), selectable);
