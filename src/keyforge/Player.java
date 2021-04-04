@@ -294,6 +294,62 @@ public class Player {
 	public String getDeck() { return this.dynamicDeckID; }
 	public void setDeck(String deckID) { this.dynamicDeckID = deckID; }
 
+
+
+	private void updateNewDynamicIDs(JSONObject cardPiles, boolean isOpponent) {
+		var positions = cardPiles.keys();
+
+		while (positions.hasNext()) {
+			var position = positions.next();
+			if(cardPiles.get(position) instanceof JSONObject) {
+				updatePosition(cardPiles.getJSONObject(position), position, isOpponent);
+			}
+			else {
+				System.out.println("Checkkkkk");
+			}
+			
+		}
+	}
+	private void updatePosition(JSONObject cardPile, String position, boolean isOpponent) {
+		if("hand".equals(position) && isOpponent)
+			return;
+		var keys = cardPile.keys();
+		while(keys.hasNext()) {
+			var key = keys.next();
+			if(!key.matches("\\d+"))
+				continue;
+			try {
+				var id = Integer.parseInt(key);
+				if(!(cardPile.get(key) instanceof JSONArray))
+					continue;
+				var obj = cardPile.getJSONArray(key).getJSONObject(0);
+				if(!obj.has("uuid"))
+					continue;
+				var card = getCardFromNameAndUuid(
+						obj.has("name") ? obj.getString("name") : "",
+						obj.has("uuid") ? obj.getString("uuid") : "", 
+						isOpponent, 
+						obj.has("controlled") ? obj.getBoolean("controlled") : false);
+				if(card == null) {
+					System.out.println("Unable to retrieve card, sigh");
+					continue;
+				}
+				card.setDynamicID(id);
+					
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+				continue;
+			}
+		}
+		System.out.println("HHH");
+		
+	}
+	/***
+	 * TODO MESS
+	 * @param cardPile
+	 * @param position
+	 * @param isOpponent
+	 */
 	private void getJSONObjectCardPile(JSONObject cardPile, String position, boolean isOpponent) {
 		var keys = cardPile.keys();
 		KFCard previousCard = null;
@@ -302,6 +358,7 @@ public class Player {
 			var key = keys.next();
 			if(key.startsWith("_"))
 				continue;
+				
 			try {
 				intID = Integer.parseInt(key);
 			} catch (Exception e) {
@@ -333,12 +390,32 @@ public class Player {
 			
 		}
 	}
+	private List<KFCard> getDeck(boolean isOpponent) {
+		return isOpponent ? opponentDeck : deck;
+	}
+	
+	private void switchIndexes(List<Integer> indexes, String position, boolean isOpponent) {
+		var cards = getDeck(isOpponent)
+				.stream()
+				.filter(x -> x.position == solveCruciblePosition(position))
+				.sorted(Comparator.comparingInt(KFCard::getDynamicID))
+				.collect(Collectors.toList());
+		int i = 0;
+		for(var card : cards) {
+			if (indexes.contains(card.getDynamicID())) {
+				continue;
+			}
+			card.setDynamicID(i);
+			i++;
+		}
+	}
+	
 	private void updateCardByDynamicID(JSONObject jsonLine, int dynamicID, String position, boolean isOpponent) {
-		var deck = isOpponent ? opponentDeck : this.deck;
+		var deck = getDeck(isOpponent);
 		KFCard card = deck.stream().filter(x -> x.dynamicIndexPosition == dynamicID && x.position == solveCruciblePosition(position)).findFirst().orElse(null);
 		if(card == null) 
 		{
-			System.out.println("Unable to get card with dynamic id " + dynamicID + " while updating with it");
+			System.out.println("Unable to get card with dynamic id " + dynamicID + " while updating with it.\nPosition: " + position);
 			return;
 		}
 		card.updateByJSON(jsonLine, isOpponent, position);
@@ -402,10 +479,42 @@ public class Player {
 			prevCard.print();
 		}
 	}
-	
-	public void convertCards(JSONObject cardPiles, boolean isOpponent) {
+	private void cleanPositions(JSONObject cardPiles, boolean isOpponent) {
 		var positions = cardPiles.keys();
-
+		while(positions.hasNext()) {
+			var position = positions.next();
+			if(!JSONObject.class.isInstance(cardPiles.get(position)))
+				continue;
+			cleanPosition(cardPiles.getJSONObject(position), position, isOpponent);
+		}
+	}
+	private void cleanPosition(JSONObject cardPile, String position, boolean isOpponent) {
+		var keys = cardPile.keys();
+		var removed = false;
+		List<Integer> removedIndexes = new ArrayList<Integer>();
+		while(keys.hasNext()) {
+			var key = keys.next();
+			if(!key.matches("\\_\\d+"))
+				continue;
+			try {
+				Pattern p = Pattern.compile("\\_(\\d+)");
+				var m = p.matcher(key);
+				m.find();
+				var dynID = Integer.parseInt(m.group(1));
+				removed = true;
+				removedIndexes.add(dynID);
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		if(!removed) 
+			return;
+		switchIndexes(removedIndexes, position, isOpponent);
+		
+	}
+	
+	private void updateCards(JSONObject cardPiles, boolean isOpponent) {
+		var positions = cardPiles.keys();
 		while (positions.hasNext()) {
 			var position = positions.next();
 			if(cardPiles.get(position) instanceof JSONArray)
@@ -418,7 +527,11 @@ public class Player {
 			}
 		}
 	}
-
+	public void convertCards(JSONObject cardPiles, boolean isOpponent) {
+		cleanPositions(cardPiles, isOpponent);
+		updateNewDynamicIDs(cardPiles, isOpponent);
+		updateCards(cardPiles, isOpponent);
+	}
 	private List<KFUpgrade> getUpgrades(JSONObject jsonLine, boolean isOpponent, String position) {
 		var upgradeArray = jsonLine.getJSONArray("upgrades");
 		List<KFUpgrade> upgrades = new ArrayList<KFUpgrade>();
@@ -507,8 +620,16 @@ public class Player {
 		
 		return card;	
 	}
+	
+	/***
+	 * TODO Clean
+	 * @param name
+	 * @param uuid
+	 * @param isOpponent
+	 * @return
+	 */
 	private KFCard getUpgradeFromaNameAndUuid(String name, String uuid, boolean isOpponent) {
-		var deck = isOpponent ? opponentDeck : this.deck;
+		var deck = getDeck(isOpponent);
 		var filteredName = name.replace("’", "'");
 		//look for it in deck
 		var card = deck.stream().filter(x -> x.getUuid() != null && x.equals(uuid)).findFirst()	.orElse(null);
@@ -533,8 +654,7 @@ public class Player {
 	}
 
 	public KFCard getCardFromName(String name, boolean isOpponent) {
-		var myDeck = isOpponent ? opponentDeck : deck;
-		return this.getCardFromName(myDeck, name);
+		return this.getCardFromName(getDeck(isOpponent), name);
 	}
 	public KFCard getCardFromName(List<KFCard> deck, String name) {
 		var filteredName = name.replace("’", "'");
@@ -548,13 +668,12 @@ public class Player {
 				.orElseThrow(() -> new Exception("uuidNotFound"));
 	}
 	public KFCard getCardFromUuid(String uuid, boolean isOpponent) throws Exception {
-		var myDeck = isOpponent ? opponentDeck : deck;
-		return this.getCardFromUuid(myDeck, uuid);
+		return getCardFromUuid(getDeck(isOpponent), uuid);
 				
 	}
 	public KFCard getCardFromUuid(String uuid, boolean isOpponent, boolean controlled) throws Exception {
 		var myDeck = ((isOpponent && !controlled) || (!isOpponent && controlled)) ? opponentDeck : deck;
-		var card = this.getCardFromUuid(myDeck, uuid);
+		var card = getCardFromUuid(myDeck, uuid);
 		card.setControlled(controlled);
 		return card;
 	}
@@ -762,7 +881,7 @@ public class Player {
 	}
 	public House getHouse(JSONObject obj) {
 		try {
-			return activeHouse = resolveHouse(coalesce(getValueFromClassAndJSON(obj, String.class, "activeHouse"), null));
+			return activeHouse = coalesce(resolveHouse(getValueFromClassAndJSON(obj, String.class, "activeHouse")), activeHouse);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			System.out.println("House not found");

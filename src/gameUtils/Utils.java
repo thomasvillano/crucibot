@@ -160,6 +160,8 @@ public class Utils {
 		return Ability.valueOf(ability);
 	}
 	public static House resolveHouse(String house) {
+		if(house == null)
+			return null;
 		house = house.replaceAll("\\s+", "");
 		return House.valueOf(house);
 	}

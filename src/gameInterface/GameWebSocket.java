@@ -14,7 +14,7 @@ public class GameWebSocket implements Listener {
 	private GameManager gm;
 	private WebSocket lobbyWS;
 	private String username;
-	private Player botPlayer, opponent;
+	private Player botPlayer;
 	
 	public GameWebSocket(WebSocket ws, String username, Player botPlayer) {
 		lobbyWS = ws;

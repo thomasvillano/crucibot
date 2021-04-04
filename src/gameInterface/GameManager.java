@@ -116,32 +116,6 @@ public class GameManager {
 		botPlayer.updateGameState(gameState, opponentPlayer.name);
 		return botPlayer.planPhase();
 	}
-	/**
-	 * Change this and use getWSStatus instead
-	 * @param gameState
-	 * @return
-	 */
-	@Deprecated
-	private JSONArray getStatus(JSONObject gameState)
-	{
-		// in some cases we receive messages ... to understand the purpose we can simply skip it?
-		if(gameState.has("players") && !gameState.getJSONObject("players").has(botPlayer.name)) 
-			return null;
-		// Get username from owner and then get JSONObject of the opponent
-		if (this.opponentPlayer == null) {
-			var opponentName = gameState.getString("owner");
-			opponentPlayer = new Player(opponentName, "");
-		}
-		var opponent = gameState.getJSONObject("players").getJSONObject(opponentPlayer.name);
-		updateOpponent(opponent);
-		var player = gameState.getJSONObject("players").getJSONObject(botPlayer.name);
-		updateBotPlayer(player);
-		
-		var status = checkStateON(opponent);
-		if(status != null) return status;
-		if(botPlayer.buttonEmpty() && botPlayer.controlsEmpty()) return null;		
-		return botPlayer.planPhase();
-	}
 	
 	private JSONArray checkStateON(JSONObject opponent) 
 	{

@@ -46,6 +46,8 @@ public abstract class KFCard {
 		this.name = name;
 		this.house = house;
 	}
+	public void setDynamicID(int dynamicID) { this.dynamicIndexPosition = dynamicID; }
+	public int getDynamicID() { return dynamicIndexPosition; }
 	
 	public String getUuid() { return this.uuid; }
 	public void setUuid(String uuid) { this.uuid = uuid; }
