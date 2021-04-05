@@ -81,7 +81,8 @@ public class Utils {
 	public static <T> T getValueFromClassAndJSON(JSONObject obj, Class<T> objClass, String key) {
 		if(!obj.has(key))
 			return null;
-		if(key.equals("promptTitle") && JSONObject.class.isInstance(obj.get(key)) && objClass == String.class) {
+		if((key.equals("promptTitle") || key.equals("menuTitle")) && 
+			JSONObject.class.isInstance(obj.get(key)) && objClass == String.class) {
 				return objClass.cast(composeCrucibleString(obj.getJSONObject(key)));
 		}
 		try {

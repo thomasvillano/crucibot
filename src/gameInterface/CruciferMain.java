@@ -1,5 +1,6 @@
 package gameInterface;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class CruciferMain {
 	}
 	public static String chooseBotDeck() {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("decks.txt"));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("decks.txt"), "UTF-8"));
 			String line;
 			Map<Integer,String> decks = new HashMap<>();
 			br.readLine(); //header
@@ -100,11 +101,12 @@ public class CruciferMain {
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			var cond = true;
 			int intChoice = 0;
-			if(true) 
+			if(false) 
 			{
 				keyboard.close();
 				return decks.get(intChoice);
 			}
+			
 			do {
 				
 				var choice = keyboard.readLine();

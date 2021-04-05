@@ -20,9 +20,6 @@ public class GameState {
 	private List<KFCard> cardsInPlay;
 	private List<KFCreature> toFight;
 	private List<KFCreature> fightWith;
-	private String promptTitle;
-	private String menuTitle;
-	private String phase;
 	
 	public GameState(Player botPlayer) {
 		this.botPlayer = botPlayer;
@@ -55,14 +52,15 @@ public class GameState {
 		{
 			try 
 			{
-				enemyAmber = botPlayer.enemyAmber = j_enemy.getJSONObject("stats").getInt("amber");
-				var enemyKeys = j_enemy.getJSONObject("stats").getJSONObject("keys");
-				enemyChains = botPlayer.enemyChains = j_enemy.getJSONObject("stats").getInt("chains");
-				enemyKeysForged.replaceAll((x,y) ->  enemyKeys.getBoolean(x));
+				enemyAmber = botPlayer.enemyAmber = coalesce(getValueFromClassAndJSON(j_enemy.getJSONObject("stats"), Integer.class, "amber"), botPlayer.enemyAmber);
+				enemyChains = botPlayer.enemyChains = coalesce(getValueFromClassAndJSON(j_enemy.getJSONObject("stats"), Integer.class, "chains"), enemyChains);
+				var enemyKeys =  getValueFromClassAndJSON(j_enemy.getJSONObject("stats"), JSONObject.class, "keys");
+				if(enemyKeys != null)
+					enemyKeysForged.replaceAll((x,y) -> coalesce(getValueFromClassAndJSON(enemyKeys, Boolean.class, x), enemyKeysForged.get(x)));
 				botPlayer.enemyForgedKeys = Collections.frequency(enemyKeysForged.values(), true);
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
-				System.out.println("error, check update, jenemy section");
+				System.out.println("error, check update, j_enemy section");
 				/*doesn't matter*/ 
 			}
 			
@@ -70,14 +68,15 @@ public class GameState {
 		if(j_bot != null && j_bot.has("stats")) {
 			try
 			{
-				amber = botPlayer.possessedAmber = j_bot.getJSONObject("stats").getInt("amber");
-				var botKeys = j_bot.getJSONObject("stats").getJSONObject("keys");
-				chains = botPlayer.chains = j_bot.getJSONObject("stats").getInt("chains");
-				keysForged.replaceAll((x,y) ->  botKeys.getBoolean(x));
+				amber = botPlayer.possessedAmber = coalesce(getValueFromClassAndJSON(j_bot.getJSONObject("stats"), Integer.class, "amber"), amber);
+				chains = botPlayer.chains = coalesce(getValueFromClassAndJSON(j_bot.getJSONObject("stats"), Integer.class, "chains"), chains);
+				var botKeys = getValueFromClassAndJSON(j_bot.getJSONObject("stats"), JSONObject.class, "keys");
+				if(botKeys != null)
+					keysForged.replaceAll((x,y) ->  coalesce(getValueFromClassAndJSON(botKeys ,Boolean.class, x), keysForged.get(x)));
 				botPlayer.forgedKeys = Collections.frequency(keysForged.values(), true);
 			} catch (Exception e) { 
 				System.out.println(e.getMessage());
-				System.out.println("error, check update, jenemy section");
+				System.out.println("error, check update, j_bot section");
 				/*Doesn't matter*/ 
 			}
 		}
@@ -221,7 +220,7 @@ public class GameState {
 				modifier = -1 *  ((friendMatches > abil.effect.target.tValue) ? abil.effect.target.tValue : friendMatches);
 			}
 			if(abil.effect.conds.contains("each_house")) {
-				var mathcesPerHouse = abil.effect.realMatches.stream().collect(Collectors.groupingBy(x -> x.house));	
+				var matchesPerHouse = abil.effect.realMatches.stream().collect(Collectors.groupingBy(x -> x.house));	
 			}
 			break;
 		case "exhaust":
@@ -438,5 +437,5 @@ public class GameState {
 	public Map<String, Boolean> getEnemyKeysForged() { return this.enemyKeysForged; }
 	public int getKeyCost() { return this.keyCost; }
 	public int getEnemyKeyCost() { return this.enemyKeyCost; }
-	public String getEnemyName() { return this.enemyName; }
+	public String getEnemyName() { return enemyName; }
 }

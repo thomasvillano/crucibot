@@ -2,7 +2,7 @@ package keyforge;
 
 import static gameUtils.Utils.*;
 import java.util.*;
-import java.util.regex.Matcher;
+// import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -156,19 +156,15 @@ public class Player {
 			return null;
 	}
 	private void resetState() {
-		cardSelection = false;
-		cardSelected = false;
-		flankSelection = false;
-		targetSelection = false;
-		targetSelected = false;
-		attachUpgrade = false;
-		fightTargetSelection = false;
+		cardSelection = cardSelected = flankSelection = 
+						targetSelection = targetSelected = 
+						attachUpgrade = fightTargetSelection = false;
 		currentMove = getNextMove();
 	}
 	public JSONArray genericMove() {
 		if(currentMove != null) {
 			System.out.println("\n\nMOVEs\n\n");
-			currentMove.printMove();
+			// currentMove.printMove();
 		}
 		if(currentMove.move.equals("end"))
 			return this.endTurn();
@@ -304,9 +300,6 @@ public class Player {
 			if(cardPiles.get(position) instanceof JSONObject) {
 				updatePosition(cardPiles.getJSONObject(position), position, isOpponent);
 			}
-			else {
-				System.out.println("Checkkkkk");
-			}
 			
 		}
 	}
@@ -314,6 +307,8 @@ public class Player {
 		if("hand".equals(position) && isOpponent)
 			return;
 		var keys = cardPile.keys();
+		var updated = false;
+		Map<KFCard, Integer> updatedIDs = new HashMap<KFCard, Integer>();
 		while(keys.hasNext()) {
 			var key = keys.next();
 			if(!key.matches("\\d+"))
@@ -325,24 +320,73 @@ public class Player {
 				var obj = cardPile.getJSONArray(key).getJSONObject(0);
 				if(!obj.has("uuid"))
 					continue;
-				var card = getCardFromNameAndUuid(
-						obj.has("name") ? obj.getString("name") : "",
-						obj.has("uuid") ? obj.getString("uuid") : "", 
-						isOpponent, 
-						obj.has("controlled") ? obj.getBoolean("controlled") : false);
+				var card = getCardFromJSONObject(obj, isOpponent);
 				if(card == null) {
 					System.out.println("Unable to retrieve card, sigh");
 					continue;
 				}
+				updated = true;
+				card.updateByJSON(obj, isOpponent, position);
 				card.setDynamicID(id);
+				updatedIDs.put(card, id);
 					
 			} catch(Exception e) {
 				System.out.println(e.getMessage());
 				continue;
 			}
 		}
-		System.out.println("HHH");
 		
+		if(!updated)
+			return;
+		slideIndexes(updatedIDs, position, isOpponent);
+	}
+	
+	private void slideIndexes(Map<KFCard, Integer> map, String pos, boolean isOpponent) {
+		var deck = getDeck(isOpponent);
+		var cards = deck.stream()
+				.filter(x -> x.position == solveCruciblePosition(pos))
+				.sorted(Comparator.comparingInt(KFCard::getDynamicID))
+				.collect(Collectors.toList());
+		int i = 0;
+		
+		for(var card : cards) {
+			if(map.keySet().stream().anyMatch(x -> x.getUuid().equals(card.getUuid())))
+				continue;
+			
+			if(map.containsValue(i)) {
+				i = getFirstFreeID(map, i);
+				card.setDynamicID(i);
+				map.put(card, i);
+				i++;
+				continue;
+			}
+			card.setDynamicID(i);
+			map.put(card, i);
+			i++;
+		}
+	}
+	private static int getFirstFreeID(Map<KFCard, Integer> map, int index) {
+		List<Integer> values = new ArrayList<>(map.values());
+		Collections.sort(values);
+		values = values.subList(values.indexOf(index) + 1, values.size());
+		int i = ++index;
+		for(var value : values) {
+			if(value == i) {
+				i++;
+				continue;
+			}
+			break;
+		}
+		return i;
+	}
+	
+	
+	private KFCard getCardFromJSONObject(JSONObject obj, boolean isOpponent) {
+		return getCardFromNameAndUuid(
+				obj.has("name") ? obj.getString("name") : "",
+				obj.has("uuid") ? obj.getString("uuid") : "", 
+				isOpponent, 
+				obj.has("controlled") ? obj.getBoolean("controlled") : false);
 	}
 	/***
 	 * TODO MESS
@@ -352,7 +396,7 @@ public class Player {
 	 */
 	private void getJSONObjectCardPile(JSONObject cardPile, String position, boolean isOpponent) {
 		var keys = cardPile.keys();
-		KFCard previousCard = null;
+		// KFCard previousCard = null;
 		int intID = -1;
 		while(keys.hasNext()) {
 			var key = keys.next();
@@ -377,8 +421,10 @@ public class Player {
 				}
 				continue;
 			}
+			/*
 			try 
 			{
+				// Maybe it is a repetition...
 				var el = cardPile.getJSONArray(key).getJSONObject(0);
 				previousCard = (!position.equals("cardsInPlay") || previousCard == null) ?
 						updateCard(el, position, isOpponent, intID) :
@@ -387,6 +433,7 @@ public class Player {
 				System.out.println("not a jsonobject inside getJSONObjectCardPile");
 				continue;
 			}
+			*/
 			
 		}
 	}
@@ -435,11 +482,7 @@ public class Player {
 	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID) {
 		if (isOpponent && jsonLine.getBoolean("facedown"))
 			return null;
-		KFCard card = getCardFromNameAndUuid(
-				jsonLine.has("name") ? jsonLine.getString("name") : "",
-				jsonLine.has("uuid") ? jsonLine.getString("uuid") : "", 
-				isOpponent, 
-				jsonLine.has("controlled") ? jsonLine.getBoolean("controlled") : false);
+		KFCard card = getCardFromJSONObject(jsonLine, isOpponent);
 		if (card == null) {
 			System.out.println("Error while linking card");
 			return null;
@@ -454,6 +497,7 @@ public class Player {
 		
 		return card;
 	}
+	
 	/***
 	 * Move card assignment inside card class...
 	 * @param cardPile
@@ -476,7 +520,7 @@ public class Player {
 			} else {
 				prevCard = updateCard(jsonLine, position, isOpponent, index, prevCard);
 			}
-			prevCard.print();
+			//prevCard.print();
 		}
 	}
 	private void cleanPositions(JSONObject cardPiles, boolean isOpponent) {
@@ -821,54 +865,34 @@ public class Player {
 		if(phase == null)
 			System.out.println("unable to retrieve phase from json: " + obj);
 	}
-	
+	/**
+	 * Make it simpler 
+	 **/
 	public void getMenuTitle(JSONObject player) {
-		/**
-		 * Sometimes we receive transition messages,
-		 * the last one is the one that we have to consider
-		 */
-		try {
-			if(player.has("menuTitle") ) {
-				var _menuTitle = player.get("menuTitle");
-				menuTitle = JSONObject.class.isInstance(_menuTitle) ?
-						composeCrucibleString(player.getJSONObject("menuTitle")) : 
-						( String.class.isInstance(_menuTitle) ?
-								player.getString("menuTitle") :
-								( JSONArray.class.isInstance(_menuTitle) ?
-										player.getJSONArray("menuTitle").getString(player.getJSONArray("menuTitle").length() - 1):
-										null
-								)
-						);
-			}
-		} catch(Exception e) {
-			System.out.println("Unable to get menutitle");
-			System.out.println(e.getMessage());
-			menuTitle = null;
-			return;
-		}
-		
+		menuTitle = getValueFromClassAndJSON(player, String.class, "menuTitle");
+		if (menuTitle == null)
+			System.out.println("unable to retrieve menu title");	
 		
 	}
 	public Boolean getIsActivePlayer(JSONObject player) {
-		return activePlayer = coalesce(getValueFromClassAndJSON(player,Boolean.class, "activePlayer"), activePlayer);
+		return activePlayer = coalesce(getValueFromClassAndJSON(player, Boolean.class, "activePlayer"), activePlayer);
 	}
 	/***
 	 * TODO 
 	 * @param player
 	 */
 	public void getPromptTitle(JSONObject player) {
-		promptTitle = coalesce(getValueFromClassAndJSON(player, String.class, "promptTitle"), null);
-		if(promptTitle == null) {
+		promptTitle = getValueFromClassAndJSON(player, String.class, "promptTitle");
+		if(promptTitle == null)
 			System.out.println("unable to retrieve prompt title");
-		}
 	}
 	
 	
 	public void checkStartGame() {
 		if(promptTitle != null && "start game".equals(promptTitle.toLowerCase())) {
-			if(start) return;
-			else
-				start = true;
+			if(start) 
+				return;
+			start = true;
 		}
 		
 	}

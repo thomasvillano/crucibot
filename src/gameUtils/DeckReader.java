@@ -24,7 +24,7 @@ public class DeckReader {
 		boolean start = false;
 		try {
 			int r;
-			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
 			while((r = reader.read()) != -1) {
 				char ch = (char) r;
 				card += ch;
@@ -143,7 +143,7 @@ public class DeckReader {
 	public List<KFCard> AssignDeckByDeckName(String deckName) {
 		var deck = new ArrayList<KFCard>();
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(deckName));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(deckName), "UTF-8"));
 			var line = "";
 			while((line = br.readLine()) != null)
 			{
@@ -171,7 +171,7 @@ public class DeckReader {
 					}
 				else
 				{
-					System.out.println("Card " + card + " not found!");
+					System.out.println("Card " + card + " not found! ");
 					continue;
 				}
 			}
@@ -194,7 +194,7 @@ public class DeckReader {
 		var deckTransl = "decks.txt";
 		var deckName = "";
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(deckTransl));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(deckTransl), "UTF-8"));
 			var line = br.readLine();
 			while((line = br.readLine()) != null)
 			{
