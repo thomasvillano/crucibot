@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.stream.*;
 
 import org.json.*;
+
+import gameUtils.LogFile;
+import static gameUtils.LogFile.*;
 import static gameUtils.Utils.*;
 
 public class GameState {
@@ -133,10 +136,11 @@ public class GameState {
 		}
 		try {
 			var key = rating.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			LogFile.WriteLog(Severity.MESSAGE, "House chosen is: " + key.name());
 			return key;
 		} catch(Exception e) {
-			System.out.print("error while evaluating houses: ");
-			System.out.println(e.getMessage());
+			LogFile.WriteLog(Severity.ERROR, "error while evaluating houses: ");
+			LogFile.WriteLog(Severity.ERROR, e.getMessage());
 			return null;
 		}
 	}

@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import gameUtils.LogFile;
+import gameUtils.LogFile.Severity;
 import keyforge.Player;
 
 public class GameManager {
@@ -89,30 +92,25 @@ public class GameManager {
 		
 		if((opponentPlayer == null || opponentPlayer.name != null) && gameState.has("owner")) 
 			opponentPlayer = new Player(gameState.getString("owner"),null);
-		/**
-		 * TODO if players not present? return null?
-		 */
-		if(gameState.has("players")) {
-			var players = gameState.getJSONObject("players");
-			if(opponentPlayer != null && players.has(opponentPlayer.name)) {
-				updateOpponent(players.getJSONObject(opponentPlayer.name));
-				JSONArray hasLeft;
-				if((hasLeft = checkStateON(players.getJSONObject(opponentPlayer.name))) != null)
-					return hasLeft;
-			}
-			/**
-			 * TODO if botplayer does not have a json message return null?
-			 */
-			if(players.has(botPlayer.name))
-				updateBotPlayer(players.getJSONObject(botPlayer.name));
-			else
-				return null;
-		} else
+		
+		if(!gameState.has("players"))
 			return null;
+		var players = gameState.getJSONObject("players");
+		if(opponentPlayer != null && players.has(opponentPlayer.name)) {
+			updateOpponent(players.getJSONObject(opponentPlayer.name));
+			JSONArray hasLeft;
+			if((hasLeft = checkStateON(players.getJSONObject(opponentPlayer.name))) != null)
+				return hasLeft;
+		}
+		
+		if(!players.has(botPlayer.name))
+			return null;
+		updateBotPlayer(players.getJSONObject(botPlayer.name));
 		
 		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) && 
 			(botPlayer.controls == null || botPlayer.controls.isEmpty()))
 			return null;
+		
 		botPlayer.updateGameState(gameState, opponentPlayer.name);
 		return botPlayer.planPhase();
 	}

@@ -334,23 +334,24 @@ public class KFCreature extends KFCard {
 		this.ready = false;
 		this.playable = false;
 	}
-	public void print(int index) {
-		super.print(index);
-		var header = "";
+	public String print(int index) {
+		String message;
+		var endl = "\n";
+		var padd = "    ";
+		message = super.print(index);
 		for(int i = 0; i < index; i++)
-			header += "\t";
-		System.out.println(header + "Attack: " + getAttack());
-		System.out.println(header + "Shield: " + getShield());
-		System.out.println(header + "LifePoints: " + getLifePoints());
-		System.out.println(header + "Armor: " + getDArmor());
-		System.out.println(header + "Damage: " + getDamage());
-		System.out.println(header +"Stunned: " + isStunned());
-		System.out.println(header + "Has Taunt: " + hasTaunt());
+			message += "\t";
+		message += padd +  "Attack: " + getAttack() + endl;
+		message += padd + "Shield: " + getShield() + endl;
+		message += padd + "LifePoints: " + getLifePoints() + endl;
+		message += padd + "Armor: " + getDArmor() + endl;
+		message += padd + "Damage: " + getDamage() + endl;
+		message += padd + "Stunned: " + isStunned() + endl;
+		message += padd + "Has Taunt: " + hasTaunt() + endl;
 
-		System.out.print(header);
 		for(int i = 0; i < 35; i++)
-			System.out.print("-");
-		System.out.println();
+			message +="-";
+		return message;
 	}
 	public int getDArmor() { return this.dArmor; }
 	public void setDArmos(int dArmor) { this.dArmor = dArmor; } 

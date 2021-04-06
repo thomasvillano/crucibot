@@ -106,35 +106,36 @@ public abstract class KFCard {
 			abil.target.generatePredicates(this);	
 		}
 	}
-	public void print() {
-		print(0);
+	public String print() {
+		return print(0);
 	}
-	public void print(int index) {
-		var header = "";
+	public String print(int index) {
+		var endl = "\n";
+		var padd = "    ";
+		var message = "";
 		for(int i = 0; i < index; i++)
-			header += "\t";
-		System.out.println();
-		System.out.println(header + "Name: " + getName().toUpperCase());
-		System.out.println(header + "Position: " + getPosition().name().toUpperCase());
-		System.out.println(header + "house: " + house.name().toUpperCase());
-		System.out.println();
-		System.out.println(header + "Playable: " + playable);
-		System.out.println(header + "Selectable: " + selectable);
-		System.out.println();
-		System.out.println(header + "Is enemy: " + isEnemy);
-		System.out.println(header + "Is new: " + isNew);
-		System.out.println(header + "Controlled: " + controlled);
-		System.out.println(header + "Ready:" + ready);
+			message += "\t";
+		
+		message += padd +  "Name: " + getName().toUpperCase() + endl;
+		message += padd +  "Position: " + getPosition().name().toUpperCase() + endl;
+		message += padd +  "house: " + house.name().toUpperCase() + endl;
+		message += padd +  "Playable: " + playable + endl;
+		message += padd +  "Selectable: " + selectable + endl;
+		message += padd +  "Is enemy: " + isEnemy + endl;
+		message += padd +  "Is new: " + isNew + endl;
+		message += padd +  "Controlled: " + controlled + endl;
+		message += padd +  "Ready:" + ready + endl;
 		if(leftNeighbor != null) {
-			System.out.println(header + "Left Neighbor: " + leftNeighbor.name);
+			message += padd + "Left Neighbor: " + leftNeighbor.name + endl;
 		}		
 		if(rightNeighbor != null) {
-			System.out.println(header + "Right Neighbor: " + rightNeighbor.name);
+			message += padd + "Right Neighbor: " + rightNeighbor.name + endl;
 		}
-		System.out.print(header);
+
 		for(int i = 0; i < 35 ; i++)
-			System.out.print("-");
-		System.out.println();
+			message += "-";
+		
+		return message;
 	}
 	protected boolean hasCAbil(String abil) {
 		return abilities.stream().anyMatch(x -> x.isConst() && x.getName() != null && x.getName().equals(abil));

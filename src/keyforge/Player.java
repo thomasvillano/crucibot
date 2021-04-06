@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import gameUtils.LogFile;
+import gameUtils.LogFile.Severity;
+
 public class Player {
 	private String dynamicDeckID;
 	public String strategy;
@@ -85,7 +88,16 @@ public class Player {
 		deck.forEach(x -> x.resetModifiers());
 		opponentDeck.forEach(y -> y.resetModifiers());
 	}
+	
+	private void printPhaseState() {
+		LogFile.WriteLog(Severity.INFO, "Phase: " + phase);
+		LogFile.WriteLog(Severity.INFO, "Prompt Title: " + promptTitle);
+		LogFile.WriteLog(Severity.INFO, "Menu Title: " + promptTitle);
+		LogFile.WriteLog(Severity.INFO, "Buttons :" + coalesce(buttons.toString(4), null));
+		LogFile.WriteLog(Severity.INFO, "Controls:" + coalesce(controls.toString(4), null));
+	}
 	public JSONArray planPhase() {
+		printPhaseState();
 		switch(phase) {
 		case "setup":
 			if(promptTitle != null && promptTitle.equals("Start Game")) {
@@ -161,10 +173,25 @@ public class Player {
 						attachUpgrade = fightTargetSelection = false;
 		currentMove = getNextMove();
 	}
+	
+	private String printState() {
+		var blank_lines = "    ";
+		var endline = "\n";
+		var message = endline;
+		message += blank_lines + "Card selection: " + cardSelection + endline;
+		message += blank_lines + "Card selected: " + cardSelected + endline;
+		message += blank_lines + "Flank selection: " + flankSelection + endline;
+		message += blank_lines + "Target selection: " + targetSelection + endline;
+		message += blank_lines + "Fight target selection " + fightTargetSelection + endline;
+		message += blank_lines + "Attach upgrade" + attachUpgrade + endline;
+		return message;
+	}
+	
 	public JSONArray genericMove() {
 		if(currentMove != null) {
-			System.out.println("\n\nMOVEs\n\n");
-			// currentMove.printMove();
+			LogFile.WriteLog(Severity.MESSAGE, "\n\nMoves\n");
+			LogFile.WriteLog(Severity.MESSAGE, currentMove.printMove());
+			LogFile.WriteLog(Severity.INFO, printState());
 		}
 		if(currentMove.move.equals("end"))
 			return this.endTurn();
@@ -458,22 +485,25 @@ public class Player {
 	}
 	
 	private void updateCardByDynamicID(JSONObject jsonLine, int dynamicID, String position, boolean isOpponent) {
+		if(isOpponent && (solveCruciblePosition(position) == FieldPosition.hand || solveCruciblePosition(position) == FieldPosition.archives))
+			return;
 		var deck = getDeck(isOpponent);
 		KFCard card = deck.stream().filter(x -> x.dynamicIndexPosition == dynamicID && x.position == solveCruciblePosition(position)).findFirst().orElse(null);
 		if(card == null) 
-		{
-			System.out.println("Unable to get card with dynamic id " + dynamicID + " while updating with it.\nPosition: " + position);
+		{	
+			LogFile.WriteLog(Severity.ERROR, "Unable to get card with dynamic id " + dynamicID + " while updating with it.\n" +
+											 "Position: " + position + "\nOpponent: " + isOpponent + "\nJSONLine: " + jsonLine.toString(4));
+			System.out.println("Error");
 			return;
 		}
 		card.updateByJSON(jsonLine, isOpponent, position);
-		return;
 	}
 	
-	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID, KFCard neighbor) {
+	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID, KFCreature neighbor) {
 		var card = updateCard(jsonLine, position, isOpponent, dynamicID);
-		if(card == null)
+		if(card == null || neighbor == null)
 			return card;
-		neighbor.rightNeighbor = card;
+		neighbor.rightNeighbor = card; //could be null
 		card.leftNeighbor = neighbor;
 		return card;
 		
@@ -508,18 +538,17 @@ public class Player {
 		if(!isOpponent && position.equals("archives")) 
 			nonEmptyArchive = cardPile.length() > 0;
 		
-		KFCard prevCard = null;
+		KFCreature prevCreature = null;
 		int index = -1;
 		for (Object line : cardPile) {
 			index++;
 			JSONObject jsonLine = (JSONObject) line;
 			if (isOpponent && jsonLine.getBoolean("facedown"))
 				break;
-			if (!position.equals("cardsInPlay") || prevCard == null) {
-				prevCard = updateCard(jsonLine, position, isOpponent, index);
-			} else {
-				prevCard = updateCard(jsonLine, position, isOpponent, index, prevCard);
-			}
+			var prevCard = updateCard(jsonLine, position, isOpponent, index, prevCreature);
+			if(solveCruciblePosition(position) == FieldPosition.playarea && prevCard instanceof KFCreature)
+				prevCreature = (KFCreature) prevCard;
+				
 			//prevCard.print();
 		}
 	}
@@ -607,9 +636,11 @@ public class Player {
 	}
 	
 	public JSONArray clickButton(int index) {
-		return new JSONArray().put("game").put("menuButton").put(
-				buttons.getJSONObject(index).has("arg") ? buttons.getJSONObject(index).get("arg") : JSONObject.NULL)
+		var jArray = new JSONArray().put("game").put("menuButton").put(buttons
+				.getJSONObject(index).has("arg") ? buttons.getJSONObject(index).get("arg") : JSONObject.NULL)
 				.put(buttons.getJSONObject(index).getString("uuid")).put(JSONObject.NULL);
+		LogFile.WriteLog(Severity.MESSAGE, "Button Clicked: " + jArray);
+		return jArray;
 	}
 
 	public JSONArray targetCard() {

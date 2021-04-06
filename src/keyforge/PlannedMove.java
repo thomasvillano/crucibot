@@ -76,8 +76,14 @@ public class PlannedMove {
 		friendsDestroyed = 0;
 	}
 	public int enemyPotentialAmberNextTurn() {
-		return (int)possibleTargets.stream().filter(x -> x != null && x.isEnemy && x.position != null && x.position.equals(FieldPosition.playarea)
-				&& x.ready && !x.exhausted).count();
+		return (int)possibleTargets.stream()
+				.filter(x -> x != null 
+					&& x.isEnemy 
+					&& x.position != null 
+					&& x.position.equals(FieldPosition.playarea)
+					&& x.ready 
+					&& !x.exhausted)
+				.count();
 	}
 	public int getEnemyDistanceToGoal() {
 		return enemyKeyCost - enemyAmber;
@@ -109,12 +115,16 @@ public class PlannedMove {
 	private void updateNeighborsRef() {
 		for(var card : initPool) {
 			if(card.leftNeighbor != null) {
-				var neigh = initPool.stream().filter(x -> x.equals(card.leftNeighbor)).findFirst().orElse(null);
-				card.leftNeighbor = neigh;
+				card.leftNeighbor = initPool.stream()
+						.filter(x -> x.equals(card.leftNeighbor))
+						.findFirst()
+						.orElse(null);;
 			}
 			if(card.rightNeighbor != null) {
-				var neigh = initPool.stream().filter(x -> x.equals(card.rightNeighbor)).findFirst().orElse(null);
-				card.rightNeighbor = neigh;
+				card.rightNeighbor = initPool.stream()
+						.filter(x -> x.equals(card.rightNeighbor))
+						.findFirst()
+						.orElse(null);
 			}
 		}
 	}
@@ -154,11 +164,12 @@ public class PlannedMove {
 	}
 	public void initTargets() {
 		possibleTargets = initPool.stream()
-				.filter(x -> x != null && x.position != null
-				&& (x.position.equals(FieldPosition.playarea)
-						|| x.position.equals(FieldPosition.discard)
-						|| x.position.equals(FieldPosition.archives)
-						|| x.position.equals(FieldPosition.hand)))
+				.filter(x -> x != null 
+					&& x.position != null
+					&& (x.position.equals(FieldPosition.playarea)
+					|| x.position.equals(FieldPosition.discard)
+					|| x.position.equals(FieldPosition.archives)
+					|| x.position.equals(FieldPosition.hand)))
 		.collect(Collectors.toList());
 		possibleTargets.forEach(x -> x.selectable = true);
 	}
@@ -174,10 +185,14 @@ public class PlannedMove {
 	}
 	private void initPool() {
 		var foo = botPlayer.deck.stream()
-				.filter(x -> x.position != null && !x.position.equals(FieldPosition.deck))
+				.filter(x -> x.position 
+						!= null 
+						&& !x.position.equals(FieldPosition.deck))
 				.collect(Collectors.toList());
-		foo.addAll(botPlayer.opponentDeck.stream()
-				.filter(x -> x.position != null && !x.position.equals(FieldPosition.deck))
+		foo.addAll(botPlayer.opponentDeck
+				.stream()
+				.filter(x -> x.position != null 
+					&& !x.position.equals(FieldPosition.deck))
 				.collect(Collectors.toList()));
 		initPool = cloneCards(foo);
 	}
@@ -211,6 +226,7 @@ public class PlannedMove {
 						&& x.hasOmni())
 				.collect(Collectors.toList()));
 	}
+	
 	public void addPossibleCards(List<KFCard> cards, boolean isOpponent) {
 		possibleMoves = cards.stream()
 				.filter(x -> x != null && 
@@ -218,8 +234,7 @@ public class PlannedMove {
 				(x.position.equals(FieldPosition.hand) || 
 						x.position.equals(FieldPosition.playarea) ||
 						x.position.equals(FieldPosition.discard)))))
-				.map(kfCard -> {
-					return cloneCard(kfCard);})
+				.map(kfCard -> { return cloneCard(kfCard);})
 				.collect(Collectors.toList());
 		if(!isOpponent && selectedCard != null && !selectedCard.playable)
 		{
@@ -228,6 +243,7 @@ public class PlannedMove {
 			possibleMoves.removeIf(x->!x.house.equals(chosenHouse));
 		}
 	}
+	
 	public PlannedMove ignoreCardMove(KFCard card) {
 		var pm = new PlannedMove(this);
 		pm.move = "ignore";
@@ -1186,38 +1202,44 @@ public class PlannedMove {
 		return target;
 	}
 	
-	public void printMove(int index)
+	public String printMove(int index)
 	{
-		System.out.println(index + "] Current move is " + move);
-		System.out.println("   Flank selected is:" + flank);
-		System.out.println("   Amber gained:" + amberGained);
-		System.out.println("   Potential amber:" + potentialAmber);
-		System.out.println("   Friends destroyed: " + friendsDestroyed);
-		System.out.println("   Enemy Destroyed: " + enemiesDestroyed);
-		System.out.println();
-		if(move.equals("archive")) System.out.println("Return to hand archive: " + this.returnArchive);
+		String message;
+		var endl = "\n";
+		var padd = "    ";
+		message  = padd + padd + index + "] Current move is " + move + endl;
+		message += padd + "   Flank selected is:" + flank + endl;
+		message += padd + "   Amber gained:" + amberGained + endl;
+		message += padd + "   Potential amber:" + potentialAmber + endl;
+		message += padd + "   Friends destroyed: " + friendsDestroyed + endl;
+		message += padd + "   Enemy Destroyed: " + enemiesDestroyed + endl;
+		message += endl;
+		if(move.equals("archive")) 
+			message += padd + "Return to hand archive: " + this.returnArchive + endl;
 		if(selectedCard != null) {
-			System.out.println("Selected Card is:");
-			selectedCard.print(1);
+			message += padd + "Selected Card is:" + endl;
+			message += padd + selectedCard.print(1) + endl;
 			if(move.equals("fight")) {
-				System.out.println("\tTarget selected:");
-					target.print(2);
+				message += padd + "\tTarget selected:" + endl;
+				message += padd + target.print(2) + endl;
 			}
 			
 		}
-		System.out.println("\tThe ability of the move is used: " + this.effectUsed);
-		System.out.println("\tTarget to select are: " + this.targetToSelect);
-		System.out.println("\tEffect does :" + this.selectedTargetsMove);
+		message += padd + "\tThe ability of the move is used: " + this.effectUsed + endl;
+		message += padd + "\tTarget to select are: " + this.targetToSelect + endl;
+		message += padd + "\tEffect does :" + this.selectedTargetsMove + endl;
 		for(int i = 0; i < targetToSelect; i++) {
-			System.out.println("\t" + i + ") Target selected:");
-			this.selectedTargets.get(i).print(2);
+			message += padd + "\t" + i + ") Target selected:" + endl;
+			message += padd + selectedTargets.get(i).print(2) + endl;
 		}
-		if(this.selectedNextMove != null)
-			this.selectedNextMove.printMove(++index);
+		if(selectedNextMove != null)
+			message += padd + selectedNextMove.printMove(++index)+ endl;
+		
+		return message;
 	}
 	
-	public void printMove() {
-		this.printMove(1);
+	public String printMove() {
+		return this.printMove(1);
 	}
 	public void printHits() {
 		System.out.println("Hit counter :" + hits);
