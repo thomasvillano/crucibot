@@ -966,11 +966,10 @@ public class PlannedMove {
 	public void printPath() {
 		if (this.selectedNextMove == null)
 			return;
-		if(selectedNextMove.selectedCard != null)
-		{	System.out.println("House chosen is " + selectedNextMove.selectedCard.getHouse());
+		if(selectedNextMove.selectedCard != null){	
+			System.out.println("House chosen is " + selectedNextMove.selectedCard.getHouse());
 			System.out.println(	"Card chosen is " + selectedNextMove.selectedCard.name + " with move " + selectedNextMove.move + " with index " + indexChosenPath);
 		}
-		
 		selectedNextMove.printPath();	
 	}
 
@@ -993,6 +992,7 @@ public class PlannedMove {
 			nextPM.recursiveSearch();
 		}
 	}
+	
 	private boolean hitHash() {
 		List<String> toHash = new ArrayList<>();
 		PlannedMove prevM = this;
@@ -1104,6 +1104,7 @@ public class PlannedMove {
 		this.oppNChains = selectedNextMove.oppNChains;
 		/*****************************/
 	}
+	
 	public List<KFCard> getTriggerables() {
 		var dirtyTriggerables = initPool.stream().filter(x -> x != null && !x.isEnemy &&
 				x.position != null && x.position.equals(FieldPosition.playarea)).collect(Collectors.toList());
@@ -1114,6 +1115,7 @@ public class PlannedMove {
 		}
 		return triggerables;
 	}
+	
 	public void checkTriggeredMove() {
 		var triggerables = getTriggerables();
 		if(triggerables.isEmpty())
@@ -1125,6 +1127,7 @@ public class PlannedMove {
 		}
 		return;
 	}
+	
 	public KFAbility evaluateTriggerConditions(KFCard card) {
 		var cAbilities = card.abilities.stream().filter(x -> x.isConst()).collect(Collectors.toList());
 		KFAbility triggeredAbil = null;
@@ -1141,6 +1144,7 @@ public class PlannedMove {
 		
 		return triggeredAbil;
 	}
+	
 	public void evaluateTriggerAbility(KFCard card, KFAbility abil) {
 		switch(abil.effect.getName()) {
 		case "gain_amber":
@@ -1159,6 +1163,7 @@ public class PlannedMove {
 		//required action ? return true or false
 		return;
 	}
+	
 	public double rateMove() {
 		double rate = 0;
 		var toGoal = this.getDistanceToGoal();
@@ -1181,6 +1186,7 @@ public class PlannedMove {
 				+ (this.upgradesAttached * 0.6);
 		return rate;
 	}
+	
 	public PlannedMove comparePlannedMoves(PlannedMove pm1, PlannedMove pm2) {
 		if(pm1 == null && pm2 == null)
 			return null;
@@ -1193,6 +1199,7 @@ public class PlannedMove {
 		else return pm2;
 		
 	}
+	
 	public KFCard nextTarget() {
 		if(selectedTargets == null || selectedTargets.size() == 0)
 			return null;
@@ -1202,8 +1209,7 @@ public class PlannedMove {
 		return target;
 	}
 	
-	public String printMove(int index)
-	{
+	public String printMove(int index) {
 		String message;
 		var endl = "\n";
 		var padd = "    ";
@@ -1241,6 +1247,7 @@ public class PlannedMove {
 	public String printMove() {
 		return this.printMove(1);
 	}
+	
 	public void printHits() {
 		System.out.println("Hit counter :" + hits);
 	}

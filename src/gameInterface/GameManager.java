@@ -1,13 +1,8 @@
 package gameInterface;
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import gameUtils.LogFile;
-import gameUtils.LogFile.Severity;
 import keyforge.Player;
 
 public class GameManager {
@@ -16,17 +11,13 @@ public class GameManager {
 	public Player botPlayer, opponentPlayer;
 	public GameManager(String username, Player botPlayer) {
 		this.botPlayer = botPlayer;
-		try {
-			out = new PrintWriter("log/GameManagerLog_" + System.currentTimeMillis() + ".txt");
-		} catch (FileNotFoundException e) {
-		}
 	}
 	
 	public JSONArray update(JSONObject gameState) {
-				return getWSStatus(gameState);
+		return getWSStatus(gameState);
 	}
-	public void botCleaner(JSONObject bot)
-	{
+	
+	public void botCleaner(JSONObject bot) {
 		bot.remove("deckCards");
 		bot.remove("user");
 		bot.remove("cardPiles");
@@ -42,44 +33,27 @@ public class GameManager {
 		bot.remove("cardback");
 	}
 	
-	/***
-	 * @param player
-	 */
-	private void updateBotPlayer(JSONObject player) {
-		botPlayer.getButtons(player);
-		botPlayer.getControls(player);
-		botPlayer.getPhase(player);
-		botPlayer.getPromptTitle(player);
-		botPlayer.getMenuTitle(player);
-		botPlayer.checkStartGame();
-		botPlayer.getCards(player);
-		if(!botPlayer.getIsActivePlayer(player))
-			return;
-		botPlayer.getHouse(player);
-		botPlayer.checkMulligan();		
-	}
-	
 	private void updateOpponent(JSONObject opponent) {
-		if(botPlayer.opponentDeck == null && opponent.has("deckData"))
-		{
+		if(botPlayer.opponentDeck == null && opponent.has("deckData")) {
 			var deckName = opponent.getJSONObject("deckData").getString("name");
 			botPlayer.opponentDeck = botPlayer.opponentDeck == null ?
 						CruciferMain.dr.AssignDeckByDeckName(deckName) :
 						botPlayer.opponentDeck;
 		}
-		if(opponent.has("cardPiles")) {
+		if(opponent.has("cardPiles"))
 			botPlayer.convertCards(opponent.getJSONObject("cardPiles"), true);
-		}
+		
 	}
-	private Boolean checkClockMessage(JSONObject msg) 
-	{
+	
+	private Boolean checkClockMessage(JSONObject msg) {
 		if( msg.length() == 1  && 
 			msg.has("players") && 
 			msg.getJSONObject("players").has(botPlayer.name) && 
-			msg.getJSONObject("players").getJSONObject(botPlayer.name).length() == 1
-		) 
+			msg.getJSONObject("players").getJSONObject(botPlayer.name).length() == 1 && 
+			msg.getJSONObject("players").has(opponentPlayer.name) &&
+			msg.getJSONObject("players").getJSONObject(opponentPlayer.name).length() == 1) 
 			return true;
-		else return false;
+		return false;
 	}
 	/**
 	 * Unpack the results of the ws message and update the state of both players to evaluate moves
@@ -105,25 +79,23 @@ public class GameManager {
 		
 		if(!players.has(botPlayer.name))
 			return null;
-		updateBotPlayer(players.getJSONObject(botPlayer.name));
+		botPlayer.updateUsingJSON(players.getJSONObject(botPlayer.name));
 		
-		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) && 
-			(botPlayer.controls == null || botPlayer.controls.isEmpty()))
+		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) 
+			&& (botPlayer.controls == null || botPlayer.controls.isEmpty()))
 			return null;
 		
 		botPlayer.updateGameState(gameState, opponentPlayer.name);
 		return botPlayer.planPhase();
 	}
 	
-	private JSONArray checkStateON(JSONObject opponent) 
-	{
-		if(opponent.has("left") && opponent.getBoolean("left")) {
-			out.close();
-			return new JSONArray()
-					.put("game")
-					.put("leavegame");
-		}
-		else return null;
+	private JSONArray checkStateON(JSONObject opponent) {
+		if(!opponent.has("left") || !opponent.getBoolean("left")) 
+			return null;
+		out.close();
+		return new JSONArray()
+				.put("game")
+				.put("leavegame");
 		
 	}
 }

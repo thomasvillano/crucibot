@@ -17,20 +17,73 @@ import keyforge.*;
 
 public class Utils {
 
+	public enum GamePhase {
+		forge,
+		main,
+		playphase,
+		house,
+		play,
+		ready,
+		draw,		
+	}
 	
-	public static String getFilteredAttribute(String word) 
-	{
+	public enum Type {
+		play,
+		fight,
+		reap,
+		destroyed,
+		action,
+		before_fight,
+		omni,
+		constant,
+	}
+	
+	public enum Ability {
+		skirmish,
+		deploy,
+		taunt,
+		hazardous,
+		elusive,
+	}
+	
+	public enum FieldPosition {
+		playarea,
+		play,
+		field,
+		purged,
+		discard,
+		archives,
+		hand,
+		neighbor,
+		top_deck,
+		deck,
+	}
+	
+	public enum House {
+		untamed,
+		staralliance,
+		dis,
+		mars,
+		brobnar,
+		logos,
+		sanctum,
+		shadows,
+	}
+	
+	public static String getFilteredAttribute(String word) {
 		var patt = Pattern.compile("\\[(.*)\\]");
 		var match = patt.matcher(word.trim());
 		match.find();
 		return match.group(1);
 	}
+	
 	public static String getFilteredWord(String word) {
 		var patt = Pattern.compile("\"([^\"]*)\"");
 		var match = patt.matcher(word.trim());
 		match.find();
 		return match.group(1);		
 	}
+	
 	public static String[] readBlock(String block) {
 		var splitted = block.split(",");
 		var patt = Pattern.compile("\"([^\"]*)\"");
@@ -43,8 +96,8 @@ public class Utils {
 		}
 		return null;
 	}
-	public static KFCard cardFromType(String type)
-	{
+	
+	public static KFCard cardFromType(String type) {
 		switch(type) {
 		case "creature":
 			return new KFCreature();
@@ -59,6 +112,7 @@ public class Utils {
 				return null;
 		}
 	}
+	
 	public static KFCard cloneCard(KFCard card) {
 		if (KFCreature.class.isInstance(card))
 			return new KFCreature((KFCreature) card);
@@ -70,14 +124,15 @@ public class Utils {
 			return new KFArtifact((KFArtifact) card);
 		return null;
 	}
+	
 	public static Type resolveType(String effect) {
 		return Type.valueOf(effect);
 	}
 	
-	
 	public static <T> T coalesce(T value, T defaultValue) {
 		return value != null ? value : defaultValue;
 	}
+	
 	public static <T> T getValueFromClassAndJSON(JSONObject obj, Class<T> objClass, String key) {
 		if(!obj.has(key))
 			return null;
@@ -91,11 +146,9 @@ public class Utils {
 			} else if(obj.get(key).getClass() == JSONArray.class) {
 				var array = obj.getJSONArray(key);
 				var last = array.get(array.length() -1);
-				if(last.getClass() == objClass) {
+				if(last.getClass() == objClass)
 					return objClass.cast(last);
-				}
 			} else {
-				
 				System.out.println(key + " is not an instance of " + objClass);
 			}
 				
@@ -115,7 +168,6 @@ public class Utils {
 			return null;
 		
 		var finalText = new String(text);
-		
 		Pattern p = Pattern.compile("(?:\\{\\{)(\\w+)(?:\\}\\})");
 		Matcher m = p.matcher(text);
 		while(m.find()) {
@@ -133,6 +185,7 @@ public class Utils {
 		}
 		return finalText;
 	}
+	
 	public static FieldPosition solveCruciblePosition(String cruciblePos) {
 		switch(cruciblePos) {
 			case "cardsInPlay":
@@ -146,6 +199,7 @@ public class Utils {
 				return resolveFieldPosition(cruciblePos);
 		}
 	}
+	
 	public static FieldPosition resolveFieldPosition(String fieldPos){
 		fieldPos = fieldPos.replaceAll("\\s+", "");
 		try {
@@ -154,22 +208,31 @@ public class Utils {
 			return solveCruciblePosition(fieldPos);
 		}
 	}
+	
 	public static GamePhase resolveGamePhase(String gamePhase) {
 		return GamePhase.valueOf(gamePhase);
 	}
+	
 	public static Ability resolveAbility(String ability) {
 		return Ability.valueOf(ability);
 	}
+	
 	public static House resolveHouse(String house) {
 		if(house == null)
 			return null;
 		house = house.replaceAll("\\s+", "");
 		return House.valueOf(house);
 	}
+	
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 	    Set<Object> seen = ConcurrentHashMap.newKeySet();
 	    return t -> seen.add(keyExtractor.apply(t));
 	}
+	
+	public static String cleanString(String str) {
+		return str == null ? null : str.replace("’", "'");
+	}
+	
 	public static List<String> jsonArrayToList(JSONArray jsonArray) {
 		ArrayList<String> list = new ArrayList<String>();      
 		if (jsonArray != null) { 
@@ -179,54 +242,5 @@ public class Utils {
 		   } 
 		} 
 		return list;
-	}
-	public enum GamePhase {
-		forge,
-		main,
-		playphase,
-		house,
-		play,
-		ready,
-		draw,		
-	}
-	public enum Type {
-		play,
-		fight,
-		reap,
-		destroyed,
-		action,
-		before_fight,
-		omni,
-		constant,
-	}
-	public enum Ability
-	{
-		skirmish,
-		deploy,
-		taunt,
-		hazardous,
-		elusive,
-	}
-	public enum FieldPosition {
-		playarea,
-		play,
-		field,
-		purged,
-		discard,
-		archives,
-		hand,
-		neighbor,
-		top_deck,
-		deck,
-	}
-	public enum House {
-		untamed,
-		staralliance,
-		dis,
-		mars,
-		brobnar,
-		logos,
-		sanctum,
-		shadows,
 	}
 }

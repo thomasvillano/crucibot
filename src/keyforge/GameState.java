@@ -49,8 +49,8 @@ public class GameState {
 	 */
 	public void update(JSONObject gameState, String enemyName) {
 		var players = gameState.getJSONObject("players");
-		var j_enemy = players.has(enemyName) ? players.getJSONObject(enemyName) : null;
-		var j_bot   = players.has(botPlayer.name) ? players.getJSONObject(botPlayer.name) : null;
+		var j_enemy = getValueFromClassAndJSON(players, JSONObject.class, enemyName);
+		var j_bot   = getValueFromClassAndJSON(players, JSONObject.class, botPlayer.name);
 		if(j_enemy != null && j_enemy.has("stats")) 
 		{
 			try 
@@ -94,6 +94,9 @@ public class GameState {
 				.map(kfCard -> {
 					return cloneCard(kfCard);
 				}).collect(Collectors.toList());
+		if (cardsInPlay.size() <= 0)
+			return;
+		// no need to perform other operations
 		toFight = cardsInPlay.stream()
 				.filter(x -> x.position.equals(FieldPosition.playarea) && x.isEnemy && KFCreature.class.isInstance(x))
 				.map(x -> (KFCreature)x)
@@ -102,7 +105,6 @@ public class GameState {
 				.filter(x -> x.position.equals(FieldPosition.playarea) && !x.isEnemy && KFCreature.class.isInstance(x))
 				.map(x -> (KFCreature)x)
 				.collect(Collectors.toList());
-		return;
 	}
 	
 	private void assessCard(KFCard card, KFAbility abil) {
