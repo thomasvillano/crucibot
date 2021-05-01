@@ -504,7 +504,7 @@ public class Player {
 	
 	private KFCard updateCard(JSONObject jsonLine, String position, boolean isOpponent, int dynamicID, KFCreature neighbor) {
 		var card = updateCard(jsonLine, position, isOpponent, dynamicID);
-		if(card == null || neighbor == null)
+		if(card == null || neighbor == null || !(KFCreature.class.isInstance(card)))
 			return card;
 		neighbor.rightNeighbor = card; //could be null
 		card.leftNeighbor = neighbor;

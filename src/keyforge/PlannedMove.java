@@ -925,7 +925,8 @@ public class PlannedMove {
 		if (matches == null || matches.isEmpty())
 			return;
 		allTargets = matches;
-		targetToAssign = abil.target.tValue;
+		//100 -> means automatic
+		targetToAssign = (abil.target.tValue >= 100) ? 0 : abil.target.tValue;
 		effectUsed = true;
 		var autoTarget = abil.target.conds.contains("auto");
 		if (this.allTargets != null && !this.allTargets.isEmpty() && (this.targetToAssign > 0 || autoTarget)) {

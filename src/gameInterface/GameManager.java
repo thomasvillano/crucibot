@@ -96,6 +96,5 @@ public class GameManager {
 		return new JSONArray()
 				.put("game")
 				.put("leavegame");
-		
 	}
 }

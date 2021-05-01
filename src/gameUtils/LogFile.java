@@ -22,7 +22,9 @@ public class LogFile {
 	public static void WriteLog(Severity sev, String message) {
 		try {
 			var now = new SimpleDateFormat("dd/HH:mm:ss::SS").format(new Date());
-			log_file.write(now + "\t\t" + sev.name() + "\t\t" + message + "\n");
+			var f_message = now + "\t\t" + sev.name() + "\t\t" + message + "\n";
+			log_file.write(f_message);
+			System.out.println(f_message);
 			log_file.flush();
 		} catch(Exception e) {
 			System.out.println("Error while writing on " + sev.name() + " file");
