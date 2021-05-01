@@ -98,10 +98,13 @@ public class CruciferMain {
 				i++;
 			}
 			br.close();
+			
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			var cond = true;
 			int intChoice = 0;
-			if(false) 
+
+			// TEMP: TODO clear when stable
+			if(true) 
 			{
 				keyboard.close();
 				return decks.get(intChoice);

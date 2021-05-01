@@ -61,7 +61,7 @@ public class GameManager {
 	 * @return
 	 */
 	private JSONArray getWSStatus(JSONObject gameState) {
-		if(checkClockMessage(gameState))
+		if(checkClockMessage(gameState) && !botPlayer.activePlayer)
 			return null;
 		
 		if((opponentPlayer == null || opponentPlayer.name != null) && gameState.has("owner")) 
@@ -82,7 +82,8 @@ public class GameManager {
 		botPlayer.updateUsingJSON(players.getJSONObject(botPlayer.name));
 		
 		if ((botPlayer.buttons == null  || botPlayer.buttons.isEmpty()) 
-			&& (botPlayer.controls == null || botPlayer.controls.isEmpty()))
+			&& (botPlayer.controls == null || botPlayer.controls.isEmpty())
+			&& !botPlayer.activePlayer)
 			return null;
 		
 		botPlayer.updateGameState(gameState, opponentPlayer.name);

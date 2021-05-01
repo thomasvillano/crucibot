@@ -50,9 +50,13 @@ public class GameWebSocket implements Listener {
 					JSONArray response = gm.update(gameState);
 					if(response != null)
 						webSocket.sendText("42" + response.toString(), true);
+					else if(gm.botPlayer.activePlayer) {
+						System.out.println("Sending nothing!!");
+					}
 				} catch(Exception e) {
 					System.out.println("Error while receiving a message");
 					System.out.println(e.getMessage());
+					System.exit(-1);
 				}
 				
 				

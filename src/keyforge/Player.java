@@ -96,8 +96,8 @@ public class Player {
 		LogFile.WriteLog(Severity.INFO, "Phase: " + phase);
 		LogFile.WriteLog(Severity.INFO, "Prompt Title: " + promptTitle);
 		LogFile.WriteLog(Severity.INFO, "Menu Title: " + promptTitle);
-		LogFile.WriteLog(Severity.INFO, "Buttons :" + coalesce(buttons.toString(4), null));
-		LogFile.WriteLog(Severity.INFO, "Controls:" + coalesce(controls.toString(4), null));
+		LogFile.WriteLog(Severity.INFO, "Buttons :" + coalesce(buttons, null));
+		LogFile.WriteLog(Severity.INFO, "Controls:" + coalesce(controls, null));
 	}
 	
 	public JSONArray planPhase() {
@@ -195,7 +195,8 @@ public class Player {
 		cardSelection = cardSelected = flankSelection = 
 						targetSelection = targetSelected = 
 						attachUpgrade = fightTargetSelection = false;
-		currentMove = getNextMove();
+		if(currentMove != null)
+			currentMove = getNextMove();
 	}
 	
 	private String printState() {
@@ -622,13 +623,15 @@ public class Player {
 		var match = list.stream().filter(x -> x.toLowerCase().contains(name)).findFirst().orElse(null);
 		if(match == null) {
 			LogFile.WriteLog(Severity.ERROR, "Error while clicking button, button not found");
-			return null;
+			return casualMove();
 		}
 		var index = list.indexOf(match);
 		return clickButton(index);
 	}
 	
 	public JSONArray clickButton(int index) {
+		if (buttons == null || buttons.isEmpty())
+			return casualMove();
 		var jArray = new JSONArray().put("game").put("menuButton").put(buttons
 				.getJSONObject(index).has("arg") ? buttons.getJSONObject(index).get("arg") : JSONObject.NULL)
 				.put(buttons.getJSONObject(index).getString("uuid")).put(JSONObject.NULL);
@@ -653,6 +656,11 @@ public class Player {
 
 	}
 	public JSONArray selectCard(KFCard card) {
+		if(card == null) {
+			LogFile.WriteLog(Severity.ERROR, "Error while selecting card, argument was null");
+			LogFile.WriteLog(Severity.INFO, "Switching to casual move");
+			return casualMove();
+		}
 		var jArr = new JSONArray()
 				.put("game")
 				.put("cardClicked")
@@ -871,10 +879,7 @@ public class Player {
 			else if(obj.get("buttons") instanceof JSONObject)
 				buttons = BuildJSONArrayFromMap(obj.getJSONObject("buttons"));
 			return;
-		} 
-		//really necessary ? 
-		buttons = null;
-		
+		} 		
 	}
 	
 	public void getPhase(JSONObject obj) {
